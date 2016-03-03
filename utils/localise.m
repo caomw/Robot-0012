@@ -17,7 +17,7 @@ scanOffSet = [4 0];
 botSim.setScanConfig(scanLines,scanOffSet); % scan configuration for robot
 
 %generate some random particles inside the map
-num =300; % number of particles
+num =500; % number of particles
 particles(num,1) = BotSim; %how to set up a vector of objects
 isPFLdone = 0;
 
@@ -38,19 +38,18 @@ while(converged == 0 && n < maxNumOfIterations) %%particle filter loop
     %% Write code for updating your particles scans
     [position, isPFLdone] = PFL( num, botScan, particles, isPFLdone );
     
-    %% Write code for resampling your particles
-    
-    
     %% Write code to check for convergence   
-	
-
-    %% Write code to take a percentage of your particles and respawn in randomised locations (important for robustness)	
+	if isPFLdone
+        path=graph.findPath();
+        angle_d=
+    else
+        %% Write code to decide how to move next
+        % here they just turn in cicles as an example
+        turn = 0.5;
+        move = 2;
+    end
     
     
-    %% Write code to decide how to move next
-    % here they just turn in cicles as an example
-    turn = 0.5;
-    move = 2;
     botSim.turn(turn); %turn the real robot.  
     botSim.move(move); %move the real robot. These movements are recorded for marking 
     for i =1:num %for all the particles. 
