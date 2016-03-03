@@ -20,7 +20,7 @@ botSim.setScanConfig(scanLines,scanOffSet); % scan configuration for robot
 num =500; % number of particles
 particles(num,1) = BotSim; %how to set up a vector of objects
 isPFLdone = 0;
-
+botEstimate = BotSim(modifiedMap);  %sets up botSim object with adminKey
 for i = 1:num
     particles(i) = BotSim(modifiedMap);  %each particle should use the same map as the botSim object
     particles(i).randomPose(0); %spawn the particles in random locations
@@ -28,20 +28,40 @@ for i = 1:num
 end
 
 %% Localisation code
-maxNumOfIterations = 30;
+maxNumOfIterations = Inf;
 n = 0;
 converged =0; %The filter has not converged yet
-while(converged == 0 && n < maxNumOfIterations) %%particle filter loop
+onTheWay=0;
+d=Inf;
+while(d>1 && n < maxNumOfIterations) %%particle filter loop
     n = n+1; %increment the current number of iterations
-    botScan = botSim.ultraScan() %get a scan from the real robot.
+    botScan = botSim.ultraScan(); %get a scan from the real robot.
     
     %% Write code for updating your particles scans
-    [position, isPFLdone] = PFL( num, botScan, particles, isPFLdone );
-    
+    [pose, isPFLdone] = PFL( num, botScan, particles, isPFLdone );
+    botEstimate.setBotPos(pose(1:2));
+    botEstimate.setBotAng(pose(3));
     %% Write code to check for convergence   
-	if isPFLdone
-        path=graph.findPath();
-        angle_d=
+	if and(isPFLdone,~onTheWay)
+        display('planning')
+        while pose(3)>2*pi
+            pose(3)=pose(3)-2*pi;
+        end
+        
+        commands=pathPlan(pose,target,map);
+        pose;
+        commands;
+        onTheWay=1;
+    end
+        
+    if onTheWay
+        if size(commands,1)>0
+            move=commands(1,1);
+            turn=commands(1,2);
+            commands=commands(2:end,:);
+        else
+            onTheWay=0;
+        end
     else
         %% Write code to decide how to move next
         % here they just turn in cicles as an example
@@ -68,10 +88,13 @@ while(converged == 0 && n < maxNumOfIterations) %%particle filter loop
         hold off; %the drawMap() function will clear the drawing when hold is off
         botSim.drawMap(); %drawMap() turns hold back on again, so you can draw the bots
         botSim.drawBot(30,'g'); %draw robot with line length 30 and green
-        for i =1:num
-            particles(i).drawBot(3); %draw particle with line length 3 and default color
-        end
+        botEstimate.drawBot(30,'b'); %draw robot with line length 30 and green
+        %for i =1:num
+        %    particles(i).drawBot(3); %draw particle with line length 3 and default color
+        %end
+        plot(target(1),target(2),'xr')
         drawnow;
     end
+    d=distance(pose(1:2),target);
 end
 end
