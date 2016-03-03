@@ -92,7 +92,7 @@ classdef Graph < handle
             obj.vertices(obj.startID).F_cost=distance(obj.vertices(obj.startID).coordinates,obj.vertices(obj.targetID).coordinates);
             k=0;
             while ~isempty(openSet)
-                k=k+1
+                %k=k+1
                 F_costs=Inf*ones(numel(openSet),1);
                 for i=1:numel(openSet)
                     F_costs(i)=obj.vertices(openSet(i)).F_cost;
@@ -100,7 +100,7 @@ classdef Graph < handle
                 [~,bestOne]=min(F_costs);
                 current=obj.vertices(openSet(bestOne));
                 if current.ID==obj.targetID
-                    display('done');
+                    %display('done');
                     pathVert=obj.reconstructPath(current);
                     obj.optimalPath=pathVert;
                     return
@@ -139,7 +139,7 @@ classdef Graph < handle
             pathVert=current;
             while ~(current.ID==obj.startID)
                 current = obj.vertices(current.cameFrom);
-                pathVert=[pathVert current];
+                pathVert=[current pathVert];
             end
         end
         
