@@ -1,0 +1,8 @@
+%ONE TIME ONLY
+COM_CloseNXT all 
+h=COM_OpenNXT(); 
+COM_SetDefaultNXT(h); 
+
+%OPEN SENSORS
+%SENSOR 1 IS ULTRASONIC
+%OpenUltrasonic(SENSOR_1);
