@@ -47,7 +47,7 @@ for i = 1:num
         % motion model: for spreading out particles
         transstd = 2;
         orientstd = 1;
-        e = 0 + transstd * randn(1);
+        e = 0 + transstd * randn(1, 2);
         f = 0 + orientstd * randn(1,1) * (pi/180);
         newPos(count, :) = newPos(count, :) + e;
         newAng(count) = newAng(count) + f;
