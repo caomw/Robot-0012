@@ -1,4 +1,4 @@
-function [ position, isPFLdone ] = PFL( num, botScan, particles, isPFLdone )
+function [ pose isPFLdone ] = PFL( num, botScan, particles, isPFLdone )
 %% create spaces to store information for the purpose of resampling
 newPos = zeros(num, 2);
 newAng = zeros(num, 1);
@@ -77,7 +77,8 @@ end
 
 %% return
 position = mean(newPos);
-%angle = mean(newAng);
+angle = mean(newAng);
+pose = [position, angle];
 if isPFLdone == 0 && sumeig < 30
     isPFLdone = 1;
 end
