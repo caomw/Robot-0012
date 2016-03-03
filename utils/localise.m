@@ -33,7 +33,11 @@ n = 0;
 converged =0; %The filter has not converged yet
 onTheWay=0;
 d=Inf;
-while(d>1 && n < maxNumOfIterations) %%particle filter loop
+moveRes=10;
+stepSize=3;
+reLoc=0.5;
+steps=0;
+while(d>stepSize && n < maxNumOfIterations) %%particle filter loop
     n = n+1; %increment the current number of iterations
     botScan = botSim.ultraScan(); %get a scan from the real robot.
     
@@ -49,17 +53,26 @@ while(d>1 && n < maxNumOfIterations) %%particle filter loop
         end
         
         commands=pathPlan(pose,target,map);
-        pose;
-        commands;
         onTheWay=1;
     end
         
     if onTheWay
-        if size(commands,1)>0
-            move=commands(1,1);
+        if steps==0
+            move=stepSize;% commands(1,1)/moveRes;
             turn=commands(1,2);
-            commands=commands(2:end,:);
+            steps=steps+1;
+            %commands=[];%commands(2:end,:);
+        elseif commands(1,1)-steps*stepSize<stepSize
+            move=commands(1,1)-steps*stepSize;
+            turn=0;
+            steps=0;
+            onTheWay=0;
+        elseif steps*stepSize<commands(1,1)*reLoc;
+            move=stepSize;%commands(1,1)/moveRes;
+            turn=0;
+            steps=steps+1;
         else
+            steps=0;
             onTheWay=0;
         end
     else
@@ -75,9 +88,10 @@ while(d>1 && n < maxNumOfIterations) %%particle filter loop
     for i =1:num %for all the particles. 
         particles(i).turn(turn); %turn the particle in the same way as the real robot
         particles(i).move(move); %move the particle in the same way as the real robot
-        botEstimate.turn(turn);
-        botEstimate.move(move);
+        
     end
+    botEstimate.turn(turn);
+    botEstimate.move(move);
     
     % check if robot is inside the map
     if particles(i).insideMap() == 0
