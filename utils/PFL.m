@@ -1,4 +1,4 @@
-function [ pose isPFLdone ] = PFL( num, botScan, particles, isPFLdone )
+function [ pose, isPFLdone ] = PFL( num, botScan, particles, isPFLdone )
 %% create spaces to store information for the purpose of resampling
 newPos = zeros(num, 2);
 newAng = zeros(num, 1);
@@ -45,7 +45,7 @@ for i = 1:num
         newAng(count) = particles(index).getBotAng();
         
         % motion model: for spreading out particles
-        transstd = 2;
+        transstd = 1;
         orientstd = 1;
         e = 0 + transstd * randn(1, 2);
         f = 0 + orientstd * randn(1,1) * (pi/180);
