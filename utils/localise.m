@@ -75,6 +75,8 @@ while(d>1 && n < maxNumOfIterations) %%particle filter loop
     for i =1:num %for all the particles. 
         particles(i).turn(turn); %turn the particle in the same way as the real robot
         particles(i).move(move); %move the particle in the same way as the real robot
+        botEstimate.turn(turn);
+        botEstimate.move(move);
     end
     
     % check if robot is inside the map
