@@ -17,14 +17,18 @@ scanOffSet = [4 0];
 botSim.setScanConfig(scanLines,scanOffSet); % scan configuration for robot
 
 %generate some random particles inside the map
-num =500; % number of particles
+num = 500; % number of particles
 particles(num,1) = BotSim; %how to set up a vector of objects
 isPFLdone = 0;
 botEstimate = BotSim(modifiedMap);  %sets up botSim object with adminKey
 for i = 1:num
     particles(i) = BotSim(modifiedMap);  %each particle should use the same map as the botSim object
     particles(i).randomPose(0); %spawn the particles in random locations
-     particles(i).setScanConfig(scanLines,scanOffSet); % scan configuration for each particle
+    particles(i).setScanConfig(scanLines,scanOffSet); % scan configuration for each particle
+    
+    % set noise for particles
+    particles(i).setMotionNoise(0.03);
+    particles(i).setTurningNoise(0.01);
 end
 
 %% Localisation code

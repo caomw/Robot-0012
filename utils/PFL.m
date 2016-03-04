@@ -4,7 +4,7 @@ newPos = zeros(num, 2);
 newAng = zeros(num, 1);
 
 %% Parameters setting
-sigma = 5;
+sigma = 3;
 dampling = 0.01;
 
 %% Updating weights
@@ -12,7 +12,6 @@ weights = ones(num, 1) * (1 / num); % initialize weights
 
 for i = 1:num
     pScan = particles(i).ultraScan(); % get scan for each particle
-    %delta = sum( (pScan - botScan).^2 );
     delta = sum( abs(pScan - botScan) );
     weights(i) = exp( - delta / (2 * sigma.^2) ) + dampling;
 end
@@ -45,13 +44,14 @@ for i = 1:num
         newAng(count) = particles(index).getBotAng();
         
         % motion model: for spreading out particles
+        %{
         transstd = 1;
         orientstd = 1;
         e = 0 + transstd * randn(1, 2);
         f = 0 + orientstd * randn(1,1) * (pi/180);
         newPos(count, :) = newPos(count, :) + e;
         newAng(count) = newAng(count) + f;
-        
+        %}
     end
     
     % update total number of new-born particles
