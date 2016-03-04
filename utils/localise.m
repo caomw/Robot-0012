@@ -8,15 +8,16 @@ modifiedMap = map; %you need to do this modification yourself
 botSim.setMap(modifiedMap);
 
 %% Scan configuration: 180 degrees vision
-startAngle =-pi/2;
-endAngle = pi/2;
-samples = 13; % number of beams
-angles= (startAngle:(endAngle - startAngle)/(samples-1):endAngle);
-scanLines =  [cos(angles); sin(angles)]';
-scanOffSet = [4 0];
-botSim.setScanConfig(scanLines,scanOffSet); % scan configuration for robot
+% startAngle =-pi/2;
+% endAngle = pi/2;
+% samples = 13; % number of beams
+% angles= (startAngle:(endAngle - startAngle)/(samples-1):endAngle);
+% scanLines =  [cos(angles); sin(angles)]';
+% scanOffSet = [4 0];
+% botSim.setScanConfig(scanLines,scanOffSet); % scan configuration for robot
+botSim.setScanConfig(botSim.generateScanConfig(8));
 
-%generate some random particles inside the map
+% generate some random particles inside the map
 num = 500; % number of particles
 particles(num,1) = BotSim; %how to set up a vector of objects
 isPFLdone = 0;
@@ -24,11 +25,12 @@ botEstimate = BotSim(modifiedMap);  %sets up botSim object with adminKey
 for i = 1:num
     particles(i) = BotSim(modifiedMap);  %each particle should use the same map as the botSim object
     particles(i).randomPose(0); %spawn the particles in random locations
-    particles(i).setScanConfig(scanLines,scanOffSet); % scan configuration for each particle
+    %particles(i).setScanConfig(scanLines,scanOffSet); % scan configuration for each particle
+    particles(i).setScanConfig(particles(i).generateScanConfig(8));
     
     % set noise for particles
-    particles(i).setMotionNoise(0.03);
-    particles(i).setTurningNoise(0.01);
+    %particles(i).setMotionNoise(0.03);
+    %particles(i).setTurningNoise(0.01);
 end
 
 %% Localisation code
@@ -46,7 +48,7 @@ while(d>stepSize && n < maxNumOfIterations) %%particle filter loop
     botScan = botSim.ultraScan(); %get a scan from the real robot.
     
     %% Write code for updating your particles scans
-    [pose, isPFLdone] = PFL( num, botScan, particles, isPFLdone );
+    [pose, isPFLdone] = PFL( botScan, particles, isPFLdone );
     botEstimate.setBotPos(pose(1:2));
     botEstimate.setBotAng(pose(3));
     %% Write code to check for convergence   

@@ -1,5 +1,6 @@
-function [ pose, isPFLdone ] = PFL( num, botScan, particles, isPFLdone )
+function [ pose, isPFLdone ] = PFL( botScan, particles, isPFLdone )
 %% create spaces to store information for the purpose of resampling
+num = size(particles, 1);
 newPos = zeros(num, 2);
 newAng = zeros(num, 1);
 
@@ -62,8 +63,20 @@ for i = 1:num
     
 end
 
+%% get estimation
+position = mean(newPos);
+angle = mean(newAng);
+
 %% update current particles
 for i = 1:num
+    % motion model
+    transstd = 1;
+    orientstd = 1;
+    e = 0 + transstd * randn(1, 2);
+    f = 0 + orientstd * randn(1,1) * (pi/180);
+    newPos(count, :) = newPos(count, :) + e;
+    newAng(count) = newAng(count) + f;
+    
     particles(i).setBotPos( newPos(i, :) );
     particles(i).setBotAng( newAng(i) );
 end
@@ -76,8 +89,8 @@ if isPFLdone == 0
 end
 
 %% return
-position = mean(newPos);
-angle = mean(newAng);
+% position = mean(newPos);
+% angle = mean(newAng);
 pose = [position, angle];
 if isPFLdone == 0 && sumeig < 30
     isPFLdone = 1;
