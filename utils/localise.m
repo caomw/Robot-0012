@@ -41,8 +41,9 @@ onTheWay=0;
 d=Inf;
 moveRes=10;
 stepSize=3;
-reLoc=0.5;
+reLoc=10;
 steps=0;
+targetRand=target;
 while(d>stepSize && n < maxNumOfIterations) %%particle filter loop
     n = n+1; %increment the current number of iterations
     botScan = botSim.ultraScan(); %get a scan from the real robot.
@@ -60,21 +61,24 @@ while(d>stepSize && n < maxNumOfIterations) %%particle filter loop
         
         commands=pathPlan(pose,target,map);
         onTheWay=1;
+    elseif ~onTheWay
+        %display('planningRand')
+        %while pose(3)>2*pi
+        %    pose(3)=pose(3)-2*pi;
+        %end
+        %targetRand=[200 200];% getRndPtInMap(botSim,15);
+        %commands=pathPlan(pose,targetRand,map);
+        %onTheWay=1;
     end
         
     if onTheWay
         if steps==0
-            move=stepSize;% commands(1,1)/moveRes;
+            move=commands(1,1)/moveRes;
             turn=commands(1,2);
             steps=steps+1;
             %commands=[];%commands(2:end,:);
-        elseif commands(1,1)-steps*stepSize<stepSize
-            move=commands(1,1)-steps*stepSize;
-            turn=0;
-            steps=0;
-            onTheWay=0;
-        elseif steps*stepSize<commands(1,1)*reLoc;
-            move=stepSize;%commands(1,1)/moveRes;
+        elseif and(steps<reLoc,distance(pose(1:2),target)<d);
+            move=commands(1,1)/moveRes;
             turn=0;
             steps=steps+1;
         else
@@ -115,6 +119,7 @@ while(d>stepSize && n < maxNumOfIterations) %%particle filter loop
         %    particles(i).drawBot(3); %draw particle with line length 3 and default color
         %end
         plot(target(1),target(2),'xr')
+        plot(targetRand(1),targetRand(2),'xb')
         drawnow;
     end
     d=distance(pose(1:2),target);

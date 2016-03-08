@@ -131,7 +131,8 @@ classdef Graph < handle
                 end
                 
             end
-            display('Infeasible')
+            display('Not feasible')
+            pathVert=[];% obj.vertices(obj.startID).coordinates;
             
         end
         
