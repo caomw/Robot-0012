@@ -18,7 +18,7 @@ botSim.setMap(modifiedMap);
 
 
 % generate some random particles inside the map
-num = 500; % number of particles
+num = 300; % number of particles
 particles(num,1) = BotSim; %how to set up a vector of objects
 isPFLdone = 0;
 botEstimate = BotSim(modifiedMap);  %sets up botSim object with adminKey
@@ -40,9 +40,9 @@ n = 0;
 converged =0; %The filter has not converged yet
 onTheWay=0;
 d=Inf;
-moveRes=3;
+moveRes=5;
 stepSize=3;
-reLoc=2;
+reLoc=4;
 steps=0;
 targetRand=target;
 knownPoints=NaN([2 2000],'double');
@@ -107,24 +107,15 @@ direction=0;
             botSim.drawBot(30,'g'); %draw robot with line length 30 and green
             botSim.drawScanConfig();
             botEstimate.drawBot(30,'b'); %draw robot with line length 30 and green
-            %for i =1:num
-            %    particles(i).drawBot(3); %draw particle with line length 3 and default color
-            %end
+            
+            drawParticles=0;
+            if drawParticles
+                for i =1:num
+                    particles(i).drawBot(3); %draw particle with line length 3 and default color
+                end
+            end
             plot(target(1),target(2),'xr')
-            %plot(targetRand(1),targetRand(2),'xb')
-
-            %{
-            for i=1:size(knownPoints,2)
-                %knownPoints2(:,i)=knownPoints(:,i)+botSim.getBotPos()';
-                knownPoints2(:,i)=Rot(botSim.getBotAng())*knownPoints(:,i);
-                knownPoints2(:,i)=knownPoints2(:,i)+botSim.getBotPos()';
-            end
-            for i=1:size(beenThere,2)
-                %knownPoints2(:,i)=knownPoints(:,i)+botSim.getBotPos()';
-                beenThere2(:,i)=Rot(botSim.getBotAng())*beenThere(:,i);
-                beenThere2(:,i)=beenThere2(:,i)+botSim.getBotPos()';
-            end
-            %}
+            
 
             knownPoints2=(knownPoints'*Rot(botSim.getBotAng())')';
             knownPoints2=(knownPoints2'+ones(size(knownPoints2))'*diag(botSim.getBotPos()))';
