@@ -18,7 +18,8 @@ for i = 1:num
 end
 
 % normalize weights
-weights = weights / sum(weights);
+addition = 0.5 / num;
+weights = weights / sum(weights) + addition;
 
 %% Resampling
 count = 0;

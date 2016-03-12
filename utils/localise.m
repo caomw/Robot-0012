@@ -18,7 +18,7 @@ botSim.setMap(modifiedMap);
 
 
 % generate some random particles inside the map
-num = 300; % number of particles
+num = 500; % number of particles
 particles(num,1) = BotSim; %how to set up a vector of objects
 isPFLdone = 0;
 botEstimate = BotSim(modifiedMap);  %sets up botSim object with adminKey
