@@ -42,7 +42,7 @@ classdef RealRobot < handle
             senMotorCommand(theta,1);
         end
         
-        function scan=ultraScan(obj)
+        function scan=ultraScan(obj,wait)
             %TODO move around, and take mesaurements
             
             
@@ -50,37 +50,36 @@ classdef RealRobot < handle
             %header1 = 'Measure in cm';
             %fid=fopen('SensorMovement.txt','w');
             %fprintf(fid, [ header1 '\n']);
-            R2=zeros(1000,1);
-            angles2=R;
+            dist=-1*zeros(1000,1);
+            angles=dist;
             direction=1;
-            mSensor= NXTMotor('C', 'Power', direction*50);
-            mSensor.SpeedRegulation = false;
-            mSensor.TachoLimit = Resolution;
-            mSensor.ActionAtTachoLimit = 'Brake';
-            mSensor.SmoothStart = true;
-            data=mSensor.ReadFromNXT();
+            
+            data=obj.mSensor.ReadFromNXT();
 
-            mSensor.TachoLimit=abs(-90-data.Position);
-            mSensor.Power=50*sign(-90-data.Position);
-            mSensor.SendToNXT();
-            %mSensor.WaitFor();
-            pause(2);
-            mSensor.Power=50;
-            mSensor.TachoLimit=Resolution;
+            obj.mSensor.TachoLimit=abs(-90-data.Position);
+            obj.mSensor.Power=50*sign(-90-data.Position);
+            obj.mSensor.SendToNXT();
+            %if wait
+                obj.mSensor.WaitFor();
+                pause(2);
+            %end
+            obj.mSensor.Power=50;
+            obj.mSensor.TachoLimit=Resolution;
 
-            c=0
+            c=0;
             while data.Position<direction*90
                 c=c+1;
-                mSensor.SendToNXT(); 
-                mSensor.WaitFor();
+                obj.mSensor.SendToNXT(); 
+                obj.mSensor.WaitFor();
                 pause(1)
-                data=mSensor.ReadFromNXT();
-                R2(c) = GetUltrasonic(SENSOR_1);
-                angles2(c)=data.Position;
+                data=obj.mSensor.ReadFromNXT();
+                dist(c) = GetUltrasonic(SENSOR_1);
+                angles(c)=data.Position;
                 %fprintf(fid, '%f \n', R(c)');
             end
             %fclose(fid);
             NXT_PlayTone(500, 100);
+            scan=[angles(dist~=-1) dist(dist~=-1)];
             
         end
         
