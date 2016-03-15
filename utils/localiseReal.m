@@ -2,57 +2,57 @@ function [botSim] = localiseReal(botSim,map,target)
 %This function returns botSim, and accepts, botSim, a map and a target.
 %LOCALISE Template localisation function
 
-%% setup code
-%you can modify the map to take account of your robots configuration space
-modifiedMap = map; %you need to do this modification yourself
-botSim.setMap(modifiedMap);
-botReal=RealRobot();
+    %% setup code
+    %you can modify the map to take account of your robots configuration space
+    modifiedMap = map; %you need to do this modification yourself
+    botSim.setMap(modifiedMap);
+    botReal=RealRobot();
 
-%% Scan configuration: 180 degrees vision
- startAngle =-pi/2;
- endAngle = pi/2;
- samples = 10; % number of beams
- scanLines= startAngle:abs(endAngle-startAngle)/samples:endAngle;%-abs(startAngle-endAngle)/samples
- scanConfig =  cat(1,cos(scanLines), sin(scanLines))'*30;
- botSim.setScanConfig(scanConfig);           
-%botSim.setScanConfig(botSim.generateScanConfig(8));
+    %% Scan configuration: 180 degrees vision
+     startAngle =-pi/2;
+     endAngle = pi/2;
+     samples = 10; % number of beams
+     scanLines= startAngle:abs(endAngle-startAngle)/samples:endAngle;%-abs(startAngle-endAngle)/samples
+     scanConfig =  cat(1,cos(scanLines), sin(scanLines))'*30;
+     botSim.setScanConfig(scanConfig);           
+    %botSim.setScanConfig(botSim.generateScanConfig(8));
 
 
-% generate some random particles inside the map
-num = 500; % number of particles
-particles(num,1) = BotSim; %how to set up a vector of objects
-isPFLdone = 0;
-botEstimate = BotSim(modifiedMap);  %sets up botSim object with adminKey
-for i = 1:num
-    particles(i) = BotSim(modifiedMap);  %each particle should use the same map as the botSim object
-    particles(i).randomPose(0); %spawn the particles in random locations
-    %particles(i).setScanConfig(scanLines,scanOffSet); % scan configuration for each particle
-    %particles(i).setScanConfig(particles(i).generateScanConfig(8));
-    particles(i).setScanConfig(scanConfig);
-    
-    % set noise for particles
-    particles(i).setMotionNoise(1);
-    particles(i).setTurningNoise(0.1);
-end
+    % generate some random particles inside the map
+    num = 500; % number of particles
+    particles(num,1) = BotSim; %how to set up a vector of objects
+    isPFLdone = 0;
+    botEstimate = BotSim(modifiedMap);  %sets up botSim object with adminKey
+    for i = 1:num
+        particles(i) = BotSim(modifiedMap);  %each particle should use the same map as the botSim object
+        particles(i).randomPose(0); %spawn the particles in random locations
+        %particles(i).setScanConfig(scanLines,scanOffSet); % scan configuration for each particle
+        %particles(i).setScanConfig(particles(i).generateScanConfig(8));
+        particles(i).setScanConfig(scanConfig);
 
-%% Localisation code
-maxNumOfIterations = Inf;
-n = 0;
-converged =0; %The filter has not converged yet
-onTheWay=0;
-d=Inf;
-moveRes=3;
-stepSize=3;
-reLoc=2;
-steps=0;
-targetRand=target;
-knownPoints=NaN([2 2000],'double');
-%[];
-beenThere=knownPoints;
-knownPoints2=knownPoints;
-beenThere2=knownPoints;
-unitV=[0;1];
-direction=0;
+        % set noise for particles
+        particles(i).setMotionNoise(1);
+        particles(i).setTurningNoise(0.1);
+    end
+
+    %% Localisation code
+    maxNumOfIterations = Inf;
+    n = 0;
+    converged =0; %The filter has not converged yet
+    onTheWay=0;
+    d=Inf;
+    moveRes=3;
+    stepSize=3;
+    reLoc=2;
+    steps=0;
+    targetRand=target;
+    knownPoints=NaN([2 2000],'double');
+    %[];
+    beenThere=knownPoints;
+    knownPoints2=knownPoints;
+    beenThere2=knownPoints;
+    unitV=[0;1];
+    direction=0;
     while(d>stepSize && n < maxNumOfIterations) %%particle filter loop
         %tic
         n = n+1; %increment the current number of iterations
@@ -71,7 +71,7 @@ direction=0;
         botEstimate.setBotPos(pose(1:2));
         botEstimate.setBotAng(pose(3));
         for i=1:numel(botScan)
-            knownPoints(:,i)=botScan(i)*Rot(scanLines(i)-pi/2)*unitV;
+            knownPoints(:,i)=botScan(i)*Rot(scanLines(i)-pi/2)*unitV+5*unitV;
             %knownPoints=[knownPoints botScan(i)*Rot(scanLines(i)-pi/2)*unitV];
         end
 
@@ -95,10 +95,10 @@ direction=0;
 
             directionNew=pathExplore(knownPoints,beenThere);
 
-            e=0.5;
+            e=1;
             commands(2)=e*directionNew+(1-e)*direction;
             direction=directionNew;
-            commands(1)=5;
+            commands(1)=10;
             onTheWay=1;
         end
         %knownPoints=[knownPoints [0;0]];
@@ -167,7 +167,8 @@ direction=0;
                 move=commands(1,1)/moveRes;
                 
                 turn=0;
-                steps=steps+1;
+                steps=0;
+                onTheWay=0;
                 %{
                 for i=1:size(knownPoints,2)
                     %knownPoints(:,i)=Rot(turn)*knownPoints(:,i);
@@ -203,6 +204,8 @@ direction=0;
         %% Move
         botReal.turn(turn); %turn the real robot.  
         botReal.move(move); %move the real robot. These movements are recorded for marking 
+        botSim.turn(turn); %turn the real robot.  
+        botSim.move(move); %move the real robot. These movements are recorded for marking 
         for i =1:num %for all the particles. 
             particles(i).turn(turn); %turn the particle in the same way as the real robot
             particles(i).move(move); %move the particle in the same way as the real robot

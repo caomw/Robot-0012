@@ -28,7 +28,7 @@ classdef RealRobot < handle
             OpenUltrasonic(SENSOR_1);
             
             obj.motor=NXTMotor.empty(2,0);
-            obj.motorPow=20;
+            obj.motorPow=30;
             %left
             obj.motor(1)= NXTMotor('A', 'Power',0,'SpeedRegulation',true,'TachoLimit',0,'ActionAtTachoLimit','Brake','SmoothStart',true);
             %right
@@ -36,7 +36,7 @@ classdef RealRobot < handle
             obj.motor(1).SendToNXT(); 
             obj.motor(2).SendToNXT();
             
-            obj.mSensorPower=10;
+            obj.mSensorPower=20;
             obj.mSensor= NXTMotor('C', 'Power', obj.mSensorPower,'SpeedRegulation',false,'TachoLimit',0,'ActionAtTachoLimit','Brake','SmoothStart',false);
             
             obj.sensorRays=20;
@@ -98,7 +98,7 @@ classdef RealRobot < handle
             
             %fclose(fid);
             obj.turnSensor(0,1); 
-            NXT_PlayTone(500, 100);
+            %NXT_PlayTone(500, 100);
             angles=angles(dist~=255);
             dist=dist(dist~=255);
             
@@ -118,6 +118,7 @@ classdef RealRobot < handle
             scanRaw=[angles(dist~=-1) dist(dist~=-1)];
             
             
+            %dlmwrite('scanresult',scanRaw)
             dscan=[scanRaw(1:end-1,1) diff(scanRaw(:,2))];
             mask=abs(dscan(:,2))<5;
             mask=and(and(mask,circshift(mask,1)),circshift(mask,-1));

@@ -4,7 +4,7 @@ function direction=pathExplore(knownPoints,beenThere)
     f=[0 0 0]';
     delta=0.01;
     %bound=boundary(knownPoints',1);
-    q=1000;
+    q=2000;
     d0=1;
     for i=1:size(knownPoints,2);
         if ~(isnan(knownPoints(1,i)))
