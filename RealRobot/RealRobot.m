@@ -8,6 +8,8 @@ classdef RealRobot < handle
         motorPow
         mSensor
         mSensorPower
+        sensorRays
+        sensRange
         
         R
         w
@@ -18,7 +20,7 @@ classdef RealRobot < handle
         
         function obj=RealRobot()
             obj.R=13/(2*pi);
-            obj.w=12;
+            obj.w=13;
             
             COM_CloseNXT all 
             obj.h=COM_OpenNXT(); 
@@ -37,6 +39,8 @@ classdef RealRobot < handle
             obj.mSensorPower=10;
             obj.mSensor= NXTMotor('C', 'Power', obj.mSensorPower,'SpeedRegulation',false,'TachoLimit',0,'ActionAtTachoLimit','Brake','SmoothStart',false);
             
+            obj.sensorRays=20;
+            obj.sensRange=80;
         end
         
         
@@ -45,7 +49,7 @@ classdef RealRobot < handle
             obj.sendMotorCommand(theta,1);
         end
         function turn(obj,angle)
-            theta=obj.turnTo(angle);
+            theta=obj.turnTo(rad2deg(angle));
             obj.sendMotorCommand(theta,1);
         end
         
@@ -68,7 +72,7 @@ classdef RealRobot < handle
             angles=dist;
             direction=1;
             
-            a_lim=80;
+            a_lim=obj.sensRange;
             obj.turnSensor(-a_lim,1);            
             obj.turnSensor(a_lim,0); 
             angle=obj.getSensAngle();
@@ -113,15 +117,19 @@ classdef RealRobot < handle
             
             scanRaw=[angles(dist~=-1) dist(dist~=-1)];
             
+            
             dscan=[scanRaw(1:end-1,1) diff(scanRaw(:,2))];
-            mask=abs(dscan(:,2))<10;
+            mask=abs(dscan(:,2))<5;
             mask=and(and(mask,circshift(mask,1)),circshift(mask,-1));
             scan=scanRaw(mask,:);
+            scanSteps=round(size(scan,1)/obj.sensorRays);
+            
+            scan=scan(1:scanSteps:end,:);
+            scan(:,1)=deg2rad(scan(:,1));
             
             
             
-            
-            
+            %{
             plot(scanRaw(:,1),scanRaw(:,2),'x')
             hold on
             plot(scan(:,1),scan(:,2),'.')
@@ -129,6 +137,7 @@ classdef RealRobot < handle
             hold off
             grid on
             axis([-90 90 -10 100]);
+            %}
             
         end
         
