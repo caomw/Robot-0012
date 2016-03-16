@@ -104,13 +104,13 @@ function [ NewMap ] = MapBorder( Map,normalsize )
         if idx == size(Map, 1)
             line2 = [TempMap(1,1) TempMap(1,2); TempMap(1,3) TempMap(1,4)];
             line1 = [TempMap(idx,1) TempMap(idx,2); TempMap(idx,3) TempMap(idx,4)];
-           [points] = Intersection(line1, line2);
+           [points] = LineIntersection(line1, line2);
             NewMap(1, 1) = points(1);
             NewMap(1, 2) = points(2);
         else
             line2 = [TempMap(idx+1,1) TempMap(idx+1,2); TempMap(idx+1,3) TempMap(idx+1,4)];
             line1 = [TempMap(idx,1) TempMap(idx,2); TempMap(idx,3) TempMap(idx,4)];
-            [points] = Intersection(line1, line2);
+            [points] = LineIntersection(line1, line2);
             NewMap(idx+1, 1) = points(1);
             NewMap(idx+1, 2) = points(2);
         end

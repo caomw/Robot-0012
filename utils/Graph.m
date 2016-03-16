@@ -5,10 +5,10 @@ classdef Graph < handle
         validEdges
         coordinates
         map
+        originalMap
         mapSize
         n
         maxEdges
-        
         targetID
         startID
         optimalPath
@@ -18,8 +18,9 @@ classdef Graph < handle
         
     end
     methods
-        function obj=Graph(start,target,map)
+        function obj=Graph(start,target,map, originalMap)
             obj.map=map;
+            obj.originalMap = originalMap;
             obj.mapSize=size(map,1);
             %obj.vertices(size(map,1)+2,1)=Vertex();
             obj.n=size(obj.map,1)+2;
@@ -129,11 +130,36 @@ classdef Graph < handle
                     obj.vertices(current.neighbours(i)).G_cost = tentative_G_cost;
                     obj.vertices(current.neighbours(i)).F_cost = obj.vertices(current.neighbours(i)).G_cost + distance(obj.vertices(current.neighbours(i)).coordinates, obj.vertices(obj.targetID).coordinates);
                 end
-                
             end
-            display('Not feasible')
-            pathVert=[];% obj.vertices(obj.startID).coordinates;
-            
+           if inpolygon(obj.vertices(obj.startID).coordinates(:,1),obj.vertices(obj.startID).coordinates(:,2),obj.originalMap(:,1),obj.originalMap(:,2))
+               if inpolygon(obj.vertices(obj.startID).coordinates(:,1),obj.vertices(obj.startID).coordinates(:,2),obj.map(:,1),obj.map(:,2))
+                    %display('I am inside BORDER map and ORIGINAL map I should keep working\n')
+               else
+                    display('Finding path...')
+                    closest = [Inf 0];
+                    for i=1:size(obj.map)
+                        dist = distance(current.coordinates, obj.map(i,:));
+                        if (closest(1) > dist)    
+                            closest(1) = dist;
+                            closest(2) = i;
+                        end
+                    end
+                    current.neighbours = closest(2);
+                    current.G_cost = current.G_cost + distance(current.coordinates, obj.vertices(current.neighbours).coordinates);
+                    current.F_cost = obj.vertices(current.neighbours).G_cost + distance(obj.vertices(current.neighbours).coordinates, obj.vertices(obj.targetID).coordinates);
+                    pathVert=[current obj.vertices(current.neighbours)];
+               end  
+           else
+               if inpolygon(obj.vertices(obj.startID).coordinates(:,1),obj.vertices(obj.startID).coordinates(:,2),obj.map(:,1),obj.map(:,2))
+                       display('I am inside BORDER map and outside ORIGINAL map that is impossible') 
+                       display('Not feasible')
+                       pathVert=[];% obj.vertices(obj.startID).coordinates;
+               else
+                   display('I am outside BORDER map and outside ORIGINAL map, I am lost')
+                   display('Not feasible')
+                   pathVert=[];% obj.vertices(obj.startID).coordinates;
+               end  
+           end            
         end
         
         function pathVert=reconstructPath(obj,current)

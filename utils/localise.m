@@ -4,8 +4,8 @@ function [botSim] = localise(botSim,map,target)
 
 %% setup code
 %you can modify the map to take account of your robots configuration space
-modifiedMap = map; %you need to do this modification yourself
-botSim.setMap(modifiedMap);
+modifiedMap = MapBorder(map, 5); %you need to do this modification yourself
+botSim.setMap(map);
 
 %% Scan configuration: 180 degrees vision
  startAngle =-pi/2;
@@ -18,12 +18,12 @@ botSim.setMap(modifiedMap);
 
 
 % generate some random particles inside the map
-num = 500; % number of particles
+num = 300; % number of particles
 particles(num,1) = BotSim; %how to set up a vector of objects
 isPFLdone = 0;
-botEstimate = BotSim(modifiedMap);  %sets up botSim object with adminKey
+botEstimate = BotSim(map);  %sets up botSim object with adminKey
 for i = 1:num
-    particles(i) = BotSim(modifiedMap);  %each particle should use the same map as the botSim object
+    particles(i) = BotSim(map);  %each particle should use the same map as the botSim object
     particles(i).randomPose(0); %spawn the particles in random locations
     %particles(i).setScanConfig(scanLines,scanOffSet); % scan configuration for each particle
     %particles(i).setScanConfig(particles(i).generateScanConfig(8));
@@ -44,7 +44,7 @@ moveRes=5;
 stepSize=3;
 reLoc=4;
 steps=0;
-targetRand=target;
+targetRand=target; %Coordinates the robot must reach
 knownPoints=NaN([2 2000],'double');
 %[];
 beenThere=knownPoints;
@@ -63,7 +63,7 @@ direction=0;
         botEstimate.setBotPos(pose(1:2));
         botEstimate.setBotAng(pose(3));
         for i=1:numel(botScan)
-            knownPoints(:,i)=botScan(i)*Rot(scanLines(i)-pi/2)*unitV;
+            knownPoints(:,i)=botScan(i)* Rot(scanLines(i)-pi/2) *unitV;
             %knownPoints=[knownPoints botScan(i)*Rot(scanLines(i)-pi/2)*unitV];
         end
 
@@ -73,14 +73,13 @@ direction=0;
         %isPFLdone=0;
         if and(isPFLdone,~onTheWay)
             display('Plan')
-            pose(3)=mod(pose(3),2*pi);
+            %pose(3)=mod(pose(3),pi);
             %{
             while pose(3)>2*pi
                 pose(3)=pose(3)-2*pi;
             end
             %}
-
-            commands=pathPlan(pose,target,map);
+            commands=pathPlan(pose,target,modifiedMap, map);
             onTheWay=1;
         elseif ~onTheWay
             display('Explore')
@@ -198,7 +197,6 @@ direction=0;
         for i =1:num %for all the particles. 
             particles(i).turn(turn); %turn the particle in the same way as the real robot
             particles(i).move(move); %move the particle in the same way as the real robot
-
         end
         botEstimate.turn(turn);
         botEstimate.move(move);
@@ -207,8 +205,6 @@ direction=0;
         if particles(i).insideMap() == 0
             particles(i).randomPose(0);
         end
-
-
         d=distance(pose(1:2),target);
         %toc
     end
