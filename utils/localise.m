@@ -39,10 +39,12 @@ maxNumOfIterations = Inf;
 n = 0;
 converged =0; %The filter has not converged yet
 onTheWay=0;
+explore=0;
 d=Inf;
 moveRes=5;
-stepSize=3;
-reLoc=4;
+stepSize=5;
+reLoc=5;
+exploreSteps=2;
 steps=0;
 targetRand=target; %Coordinates the robot must reach
 knownPoints=NaN([2 2000],'double');
@@ -60,6 +62,7 @@ direction=0;
         %% Write code for updating your particles scans
         [pose, isPFLdone] = PFL( botScan, particles, isPFLdone );
         %pose=[0 0 0];
+        %pose(3)
         botEstimate.setBotPos(pose(1:2));
         botEstimate.setBotAng(pose(3));
         for i=1:numel(botScan)
@@ -73,6 +76,7 @@ direction=0;
         %isPFLdone=0;
         if and(isPFLdone,~onTheWay)
             display('Plan')
+            
             %pose(3)=mod(pose(3),pi);
             %{
             while pose(3)>2*pi
@@ -81,6 +85,7 @@ direction=0;
             %}
             commands=pathPlan(pose,target,modifiedMap, map);
             onTheWay=1;
+            explore=0;
         elseif ~onTheWay
             display('Explore')
 
@@ -90,7 +95,8 @@ direction=0;
             commands(2)=e*directionNew+(1-e)*direction;
             direction=directionNew;
             commands(1)=5;
-            onTheWay=1;
+            onTheWay=0;
+            explore=1;
         end
         %knownPoints=[knownPoints [0;0]];
         beenThere(:,1)=[0;0];
@@ -130,49 +136,28 @@ direction=0;
         end
         %toc
 
-        if onTheWay
+        if onTheWay 
             if steps==0
-                move=commands(1,1)/moveRes;
+                if commands(1,1)>stepSize
+                    move=commands(1,1)/moveRes;
+                else
+                    move=commands(1,1);
+                end
+                
                 turn=commands(1,2);
                 steps=steps+1;
-                %{
-                for i=1:size(knownPoints,2)
-                    knownPoints(:,i)=Rot(-turn)*knownPoints(:,i);
-                    knownPoints(:,i)=knownPoints(:,i)-[move;0];
-                end
-                for i=1:size(beenThere,2)
-                    beenThere(:,i)=Rot(-turn)*beenThere(:,i);
-                    beenThere(:,i)=beenThere(:,i)-[move;0];
-                end
-                %}
-
+                
                 knownPoints=(knownPoints'*Rot(-turn)')';
                 knownPoints=(knownPoints'-ones(size(knownPoints))'*diag([move;0]))';
 
                 beenThere=(beenThere'*Rot(-turn)')';
                 beenThere=(beenThere'-ones(size(beenThere))'*diag([move;0]))';
-
-                %commands=[];%commands(2:end,:);
-            %elseif and(steps<reLoc,distance(pose(1:2),target)<d);
             elseif steps<reLoc
                 move=commands(1,1)/moveRes;
-                
                 turn=0;
                 steps=steps+1;
-                %{
-                for i=1:size(knownPoints,2)
-                    %knownPoints(:,i)=Rot(turn)*knownPoints(:,i);
-                    knownPoints(:,i)=knownPoints(:,i)-[move;0];
-                end
-                for i=1:size(beenThere,2)
-                    %knownPoints(:,i)=Rot(turn)*knownPoints(:,i);
-                    beenThere(:,i)=beenThere(:,i)-[move;0];
-                end
-                %}
-                %knownPoints=(knownPoints'*Rot(-turn)')';
+                
                 knownPoints=(knownPoints'-ones(size(knownPoints))'*diag([move;0]))';
-
-                %beenThere=(beenThere'*Rot(-turn)')';
                 beenThere=(beenThere'-ones(size(beenThere))'*diag([move;0]))';
 
             else
@@ -181,11 +166,22 @@ direction=0;
                 steps=0;
                 onTheWay=0;
             end
-        else
+        else 
             %% Write code to decide how to move next
-            % here they just turn in cicles as an example
-            %turn = 0.5;
-            %move = 2;
+            move=commands(1,1);
+            turn=commands(1,2);
+            %steps=steps+1;
+            explore=0;
+            knownPoints=(knownPoints'*Rot(-turn)')';
+            knownPoints=(knownPoints'-ones(size(knownPoints))'*diag([move;0]))';
+
+            beenThere=(beenThere'*Rot(-turn)')';
+            beenThere=(beenThere'-ones(size(beenThere))'*diag([move;0]))';
+        %else
+        %    turn=0;
+        %    move=0;
+        %    steps=0;
+        %    onTheWay=0;
         end
 
 

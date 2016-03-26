@@ -84,11 +84,12 @@ for i = 1:num
 end
 
 %% Write code to check for convergence
-if isPFLdone == 0
+%if isPFLdone == 0
+    isPFLdone = 0;
     covmat = cov(newPos);
     eigval = eig(covmat);
     sumeig = sum(eigval); % threshold: 30(num=500)
-end
+%end
 
 %% return
 % position = mean(newPos);
