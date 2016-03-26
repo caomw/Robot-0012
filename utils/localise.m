@@ -40,6 +40,8 @@ n = 0;
 converged =0; %The filter has not converged yet
 onTheWay=0;
 explore=0;
+gotoTarget=0;
+plan=1;
 d=Inf;
 moveRes=5;
 stepSize=5;
@@ -54,6 +56,7 @@ knownPoints2=knownPoints;
 beenThere2=knownPoints;
 unitV=[0;1];
 direction=0;
+robotCommand=zeros(1,2);
     while(d>stepSize && n < maxNumOfIterations) %%particle filter loop
         %tic
         n = n+1; %increment the current number of iterations
@@ -74,8 +77,11 @@ direction=0;
 
         %% Write code to check for convergence   
         %isPFLdone=0;
-        if and(isPFLdone,~onTheWay)
-            display('Plan')
+        gotoTarget=isPFLdone;
+        explore=~isPFLdone;
+        
+        if gotoTarget && plan
+            %display('Target plan')
             
             %pose(3)=mod(pose(3),pi);
             %{
@@ -84,21 +90,24 @@ direction=0;
             end
             %}
             commands=pathPlan(pose,target,modifiedMap, map);
-            onTheWay=1;
-            explore=0;
-        elseif ~onTheWay
-            display('Explore')
+            robotCommand=commands(1,:);
+            direction=robotCommand(2);
+            plan=0;
+            steps=0;
+        elseif explore && plan
+            %display('Explore plan')
 
             directionNew=pathExplore(knownPoints,beenThere);
 
-            e=0.5;
-            commands(2)=e*directionNew+(1-e)*direction;
+            e=1;
+            robotCommand(2)=e*directionNew+(1-e)*direction;
             direction=directionNew;
-            commands(1)=5;
-            onTheWay=0;
-            explore=1;
+            robotCommand(1)=4;
+
+            plan=0;
+            steps=0;
         end
-        %knownPoints=[knownPoints [0;0]];
+  
         beenThere(:,1)=[0;0];
         beenThere = circshift(beenThere,1,2);
 
@@ -136,15 +145,27 @@ direction=0;
         end
         %toc
 
-        if onTheWay 
+        
+        
+        if gotoTarget && 0
+            display(['Goint to target',num2str(steps)]);
             if steps==0
+                turn=commands(1,2);
+            else
+                turn=0;
+            end
+            if steps==reLoc-1
+                plan=1;
+            end
+                move=commands(1,1)/moveRes;
+                %{
                 if commands(1,1)>stepSize
                     move=commands(1,1)/moveRes;
                 else
                     move=commands(1,1);
                 end
-                
-                turn=commands(1,2);
+                %}
+                %turn=commands(1,2);
                 steps=steps+1;
                 
                 knownPoints=(knownPoints'*Rot(-turn)')';
@@ -152,38 +173,59 @@ direction=0;
 
                 beenThere=(beenThere'*Rot(-turn)')';
                 beenThere=(beenThere'-ones(size(beenThere))'*diag([move;0]))';
-            elseif steps<reLoc
-                move=commands(1,1)/moveRes;
-                turn=0;
-                steps=steps+1;
-                
-                knownPoints=(knownPoints'-ones(size(knownPoints))'*diag([move;0]))';
-                beenThere=(beenThere'-ones(size(beenThere))'*diag([move;0]))';
-
+  
+        elseif explore && 0
+            %% Write code to decide how to move next
+            display(['Exploring',num2str(steps)]);
+            if steps==0
+                turn=commands(1,2);
             else
                 turn=0;
-                move=0;
-                steps=0;
-                onTheWay=0;
             end
-        else 
-            %% Write code to decide how to move next
+            if steps==exploreSteps-1
+                plan=1;
+            end
+                
             move=commands(1,1);
-            turn=commands(1,2);
-            %steps=steps+1;
-            explore=0;
+            
+            steps=steps+1;
+
+
             knownPoints=(knownPoints'*Rot(-turn)')';
             knownPoints=(knownPoints'-ones(size(knownPoints))'*diag([move;0]))';
 
             beenThere=(beenThere'*Rot(-turn)')';
             beenThere=(beenThere'-ones(size(beenThere))'*diag([move;0]))';
-        %else
-        %    turn=0;
-        %    move=0;
-        %    steps=0;
-        %    onTheWay=0;
-        end
+        else
+            %display(['Just go ',num2str(steps)]);
+            if steps==0
+                turn=robotCommand(1,2);
+            else
+                turn=0;
+            end
+            
+            if steps==reLoc-1
+                plan=1;
+            end
+                %move=commands(1,1)/moveRes;
+                
+            if robotCommand(1)>stepSize
+                move=robotCommand(1)/moveRes;
+            else
+                move=robotCommand(1);
+                plan=1;
+            end
 
+            %turn=commands(1,2);
+            steps=steps+1;
+
+            knownPoints=(knownPoints'*Rot(-turn)')';
+            knownPoints=(knownPoints'-ones(size(knownPoints))'*diag([move;0]))';
+
+            beenThere=(beenThere'*Rot(-turn)')';
+            beenThere=(beenThere'-ones(size(beenThere))'*diag([move;0]))';
+        end
+        %display(['commands: ',num2str(move),' ',num2str(turn)]);
 
 
 
