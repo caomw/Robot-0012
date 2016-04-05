@@ -1,0 +1,181 @@
+\newcommand{\ass}{Robotic systems\\ Report}
+\newcommand{\name}{Sergio Castillo\\ Vince Jankovics\\ Mike Lagunes\\ Kevin Zhou}
+
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+%\usepackage{graphicx}
+\usepackage[usenames,dvipsnames]{xcolor}
+\usepackage{color}
+%\usepackage{graphicx}
+
+%\usepackage{natbib}
+%\bibliographystyle{agsm}
+\usepackage[backend=bibtex,style=authoryear,sorting=nyt,maxcitenames=2,uniquelist=false]{biblatex}
+\addbibresource{ref.bib} % note the .bib is required
+
+
+\usepackage{listings}
+\lstset{language=matlab,tabsize=3,backgroundcolor=\color{light-gray}}
+\lstset{commentstyle=\color{Sepia},numbers=left,stepnumber=5}
+\lstset{keywordstyle=\color{MidnightBlue}\bfseries\emph,
+stringstyle=\color{Mulberry},
+numberstyle=\color{gray},
+tabsize=2,
+caption=\lstname,
+breaklines=true,
+identifierstyle=\color{Mahogany}}
+
+\usepackage{enumitem}
+\setlist{noitemsep} % or \setlist{noitemsep} to leave space around whole list
+
+
+%\usepackage{cite}
+\usepackage{hyperref}
+\hypersetup{
+ colorlinks,
+ citecolor=Black,
+ linkcolor=Black,
+ urlcolor=Blue}
+ 
+\usepackage{ifpdf}
+\ifpdf
+\usepackage[pdftex]{graphicx}
+\graphicspath{{./fig/}}
+\usepackage[outdir=./]{epstopdf}
+\epstopdfDeclareGraphicsRule{.eps}{pdf}{.pdf}{%
+ps2pdf -dAutoRotatePages/None -dEPSCrop #1 \OutputFile
+}
+\else
+\usepackage{graphicx}
+\fi
+%\epstopdfDeclareGraphicsRule{.gif}{png}{.png}{convert gif:#1 png:\OutputFile}
+%\AppendGraphicsExtensions{.gif}
+
+\usepackage{pst-all} 
+
+
+
+%\usepackage{tikz}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{float}
+
+\usepackage{fullpage}
+
+
+\newcommand{\tab}{\hspace*{15pt}}
+
+\definecolor{light-gray}{gray}{0.95}
+
+\usepackage{fancyhdr}
+\setlength{\headheight}{0pt}
+\pagestyle{fancy}
+
+%\renewcommand{\theenumi}{\alph{enumi}}
+
+\newcommand{\vc}[1]{\mathbf{#1}}
+
+%\renewcommand{\sectionmark}[1]{}
+%\renewcommand{\chaptermark}[1]{}
+%\renewcommand{\refname}{}
+\renewcommand{\subsectionmark}[1]{}  
+\renewcommand{\headrulewidth}{0pt}
+\fancyhead{}
+\rhead{}
+\rfoot{}
+\lhead{}
+
+%\usetikzlibrary{calc}
+
+\newcommand*{\titleM}{
+\thispagestyle{empty}
+\newlength{\drop}
+\begingroup% Misericords, T&H p 153
+
+%\begin{tikzpicture}[remember picture, overlay]
+%    \node[inner sep=0pt] at (current page.center){%
+%        \includegraphics[width=\paperwidth]{header6.png}%
+%    };%
+%\end{tikzpicture}
+
+\drop = 0.18\textheight
+\centering
+\vspace*{\drop}
+\vspace*{\drop}
+{\Huge\bfseries \ass}\\[\baselineskip]
+{\large\scshape \name}\par
+\vfill
+\vspace*{2\drop}
+%\pagebreak
+\endgroup
+
+\thispagestyle{empty}
+\makebox[\textwidth]{}
+\pagebreak
+\makebox[\textwidth]{}
+\setcounter{page}{1}
+}
+
+\newcommand{\figs}{0.9}
+\newcommand{\dt}{\mathrm{d}t}
+\newcommand{\der}[1]{\frac{\mathrm{d}#1}{\dt}}
+\newcommand{\F}[1]{\mbox{Figure \ref{#1}}}
+\newcommand{\comment}[1]{\textit{\textcolor{Green}{#1}}}
+\newcommand{\question}[1]{\textit{\textcolor{Red}{#1}}}
+\headsep = 25pt
+
+\renewcommand{\qedsymbol}{$\blacksquare$}
+%\setlength\itemsep{0em}
+%\renewcommand{\thesubsection}{\Alph{subsection})}
+\renewcommand{\c}[1]{\mathrm{c}\left(#1\right)}
+\newcommand{\s}[1]{\mathrm{s}\left(#1\right)}
+\newcommand{\atan}[1]{\mathrm{atan2}(#1)}
+\newcommand\SmallMatrix[1]{{%
+%  \footnotesize
+  \scriptsize \arraycolsep=0.8\arraycolsep\ensuremath{\begin{bmatrix}#1\end{bmatrix}}}}
+
+\begin{document}
+	\titleM
+	
+	\section{Introduction}
+	
+		\subsection{Robot design}
+	
+	\section{Mathematical modelling}
+	
+		\subsection{Sensors}
+		
+		\subsection{Actuators}
+		
+		\subsection{Overall system}
+		
+		\subsection{Experiments, validation}
+		
+	\section{The kidnapped robot problem}
+	
+		\subsection{Localization}
+		
+		\subsection{Navigation and planning}
+ 	
+ 	\section{Results}
+ 	
+ 		\subsection{Simulation}
+ 		
+ 		\subsection{Experiments}
+ 		
+ 	\section{Discussion}
+ 
+ 
+ 
+ \printbibliography
+ 
+ \section*{Appendix}
+ 
+ 		 	
+	 	
+\end{document}
+
