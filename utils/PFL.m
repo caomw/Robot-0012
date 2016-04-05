@@ -66,7 +66,7 @@ end
 
 %% get estimation
 position = mean(newPos);
-angle = mean(newAng);
+angle = meanangle(newAng);
 
 %% update current particles
 for i = 1:num
