@@ -4,8 +4,8 @@ function [botSim] = localise(botSim,map,target)
 
     %% setup code
     %you can modify the map to take account of your robots configuration space
-    wallDistlim=10;
-    modifiedMap = MapBorder(map, wallDistlim); 
+    wallDistlim=6;
+    modifiedMap = MapBorder2(map, wallDistlim); 
     botSim.setMap(map);
     botDummy=BotSim(modifiedMap);
 
@@ -46,7 +46,7 @@ function [botSim] = localise(botSim,map,target)
     d=Inf;
     moveRes=5;
     stepSize=5;
-    reLoc=3;
+    reLoc=0;
     exploreSteps=2;
     steps=0;
 
@@ -105,15 +105,17 @@ function [botSim] = localise(botSim,map,target)
         elseif explore && plan
             %display('Explore plan')
 
-            directionNew=pathExplore(knownPoints,beenThere);
+            %directionNew=pathExplore(knownPoints,beenThere);
 
             e=0;
             robotCommand(2)=0;%e*directionNew+(1-e)*direction
-            direction=directionNew;
+            %direction=directionNew;
             robotCommand(1)=stepSize;
 
             plan=0;
             steps=0;
+        else
+            %display('Just go')
         end
         %robotCommand
         beenThere(:,1)=[0;0];
@@ -167,7 +169,7 @@ function [botSim] = localise(botSim,map,target)
             turn=0;
         end
 
-        if steps==reLoc-1
+        if steps==reLoc
             plan=1;
         end
             
@@ -181,7 +183,7 @@ function [botSim] = localise(botSim,map,target)
         end
         
         nearestNext=nearest-move*cos(scanLines(nidx)+turn);
-        if nearestNext<wallDistlim*0.9
+        if nearestNext<wallDistlim*0.8
             if abs(scanLines(nidx))<0.1
                 turn=0.9*pi;
             else

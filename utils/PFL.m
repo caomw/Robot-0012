@@ -95,7 +95,7 @@ function [ pose, isPFLdone ] = PFL( botScan, particles, isPFLdone )
     % position = mean(newPos);
     % angle = mean(newAng);
     pose = [position, angle];
-    if isPFLdone == 0 && sumeig < 8
+    if isPFLdone == 0 && sumeig < 10
         isPFLdone = 1;
     end
 

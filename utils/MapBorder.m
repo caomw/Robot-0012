@@ -10,7 +10,7 @@ function [ NewMap ] = MapBorder( Map,normalsize )
 %   maptest = [0,0;60,0;60,45;45,45;45,59;106,59;106,105;0,105];
 %   normalsize = 5;
 %   NewMapCoordinates = MapBorder(maptest,normalsize);
-
+    
     TempMap = zeros(size(Map, 1));
     NewMap = zeros(size(Map));
     for idx = 1:size(Map)
