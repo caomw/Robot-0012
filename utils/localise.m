@@ -2,61 +2,56 @@ function [botSim] = localise(botSim,map,target)
 %This function returns botSim, and accepts, botSim, a map and a target.
 %LOCALISE Template localisation function
 
-%% setup code
-%you can modify the map to take account of your robots configuration space
-modifiedMap = MapBorder(map, 5); %you need to do this modification yourself
-botSim.setMap(map);
+    %% setup code
+    %you can modify the map to take account of your robots configuration space
+    modifiedMap = MapBorder(map, 5); 
+    botSim.setMap(map);
 
-%% Scan configuration: 180 degrees vision
- startAngle =-pi/2;
- endAngle = pi/2;
- samples = 10; % number of beams
- scanLines= startAngle:abs(endAngle-startAngle)/samples:endAngle;%-abs(startAngle-endAngle)/samples
- scanConfig =  cat(1,cos(scanLines), sin(scanLines))'*30;
- botSim.setScanConfig(scanConfig);           
-%botSim.setScanConfig(botSim.generateScanConfig(8));
+    %% Scan configuration: 180 degrees vision
+    startAngle =-pi/2;
+    endAngle = pi/2;
+    samples = 10; % number of beams
+    scanLines= startAngle:abs(endAngle-startAngle)/samples:endAngle;%-abs(startAngle-endAngle)/samples
+    scanConfig =  cat(1,cos(scanLines), sin(scanLines))'*30;
+    botSim.setScanConfig(scanConfig);           
+    %botSim.setScanConfig(botSim.generateScanConfig(8));
 
 
-% generate some random particles inside the map
-num = 300; % number of particles
-particles(num,1) = BotSim; %how to set up a vector of objects
-isPFLdone = 0;
-botEstimate = BotSim(map);  %sets up botSim object with adminKey
-for i = 1:num
-    particles(i) = BotSim(map);  %each particle should use the same map as the botSim object
-    particles(i).randomPose(0); %spawn the particles in random locations
-    %particles(i).setScanConfig(scanLines,scanOffSet); % scan configuration for each particle
-    %particles(i).setScanConfig(particles(i).generateScanConfig(8));
-    particles(i).setScanConfig(scanConfig);
-    
-    % set noise for particles
-    particles(i).setMotionNoise(1);
-    particles(i).setTurningNoise(0.1);
-end
+    % generate some random particles inside the map
+    num = 500; % number of particles
+    particles(num,1) = BotSim; %how to set up a vector of objects
+    isPFLdone = 0;
+    botEstimate = BotSim(map);  %sets up botSim object with adminKey
+    for i = 1:num
+        particles(i) = BotSim(map);  %each particle should use the same map as the botSim object
+        particles(i).randomPose(0); %spawn the particles in random locations
+        %particles(i).setScanConfig(scanLines,scanOffSet); % scan configuration for each particle
+        %particles(i).setScanConfig(particles(i).generateScanConfig(8));
+        particles(i).setScanConfig(scanConfig);
 
-%% Localisation code
-maxNumOfIterations = Inf;
-n = 0;
-converged =0; %The filter has not converged yet
-onTheWay=0;
-explore=0;
-gotoTarget=0;
-plan=1;
-d=Inf;
-moveRes=5;
-stepSize=5;
-reLoc=5;
-exploreSteps=2;
-steps=0;
-targetRand=target; %Coordinates the robot must reach
-knownPoints=NaN([2 2000],'double');
-%[];
-beenThere=knownPoints;
-knownPoints2=knownPoints;
-beenThere2=knownPoints;
-unitV=[0;1];
-direction=0;
-robotCommand=zeros(1,2);
+        % set noise for particles
+        particles(i).setMotionNoise(1);
+        particles(i).setTurningNoise(0.1);
+    end
+
+    %% Localisation code
+    maxNumOfIterations = Inf;
+    n = 0;
+    plan=1;
+    d=Inf;
+    moveRes=5;
+    stepSize=5;
+    reLoc=3;
+    exploreSteps=2;
+    steps=0;
+
+    knownPoints=NaN([2 2000],'double');
+    beenThere=knownPoints;
+    knownPoints2=knownPoints;
+    beenThere2=knownPoints;
+    unitV=[0;1];
+    direction=0;
+    robotCommand=zeros(1,2);
     while(d>stepSize && n < maxNumOfIterations) %%particle filter loop
         %tic
         n = n+1; %increment the current number of iterations
@@ -65,7 +60,7 @@ robotCommand=zeros(1,2);
         %% Write code for updating your particles scans
         [pose, isPFLdone] = PFL( botScan, particles, isPFLdone );
         %pose=[0 0 0];
-        %pose(3)
+        pose
         botEstimate.setBotPos(pose(1:2));
         botEstimate.setBotAng(pose(3));
         for i=1:numel(botScan)
@@ -81,7 +76,7 @@ robotCommand=zeros(1,2);
         explore=~isPFLdone;
         
         if gotoTarget && plan
-            %display('Target plan')
+            display('Target plan')
             
             %pose(3)=mod(pose(3),pi);
             %{
@@ -95,7 +90,7 @@ robotCommand=zeros(1,2);
             plan=0;
             steps=0;
         elseif explore && plan
-            %display('Explore plan')
+            display('Explore plan')
 
             directionNew=pathExplore(knownPoints,beenThere);
 
@@ -147,84 +142,35 @@ robotCommand=zeros(1,2);
 
         
         
-        if gotoTarget && 0
-            display(['Goint to target',num2str(steps)]);
-            if steps==0
-                turn=commands(1,2);
-            else
-                turn=0;
-            end
-            if steps==reLoc-1
-                plan=1;
-            end
-                move=commands(1,1)/moveRes;
-                %{
-                if commands(1,1)>stepSize
-                    move=commands(1,1)/moveRes;
-                else
-                    move=commands(1,1);
-                end
-                %}
-                %turn=commands(1,2);
-                steps=steps+1;
-                
-                knownPoints=(knownPoints'*Rot(-turn)')';
-                knownPoints=(knownPoints'-ones(size(knownPoints))'*diag([move;0]))';
-
-                beenThere=(beenThere'*Rot(-turn)')';
-                beenThere=(beenThere'-ones(size(beenThere))'*diag([move;0]))';
-  
-        elseif explore && 0
-            %% Write code to decide how to move next
-            display(['Exploring',num2str(steps)]);
-            if steps==0
-                turn=commands(1,2);
-            else
-                turn=0;
-            end
-            if steps==exploreSteps-1
-                plan=1;
-            end
-                
-            move=commands(1,1);
-            
-            steps=steps+1;
-
-
-            knownPoints=(knownPoints'*Rot(-turn)')';
-            knownPoints=(knownPoints'-ones(size(knownPoints))'*diag([move;0]))';
-
-            beenThere=(beenThere'*Rot(-turn)')';
-            beenThere=(beenThere'-ones(size(beenThere))'*diag([move;0]))';
+        
+        %display(['Just go ',num2str(steps)]);
+        if steps==0
+            turn=robotCommand(1,2);
         else
-            %display(['Just go ',num2str(steps)]);
-            if steps==0
-                turn=robotCommand(1,2);
-            else
-                turn=0;
-            end
-            
-            if steps==reLoc-1
-                plan=1;
-            end
-                %move=commands(1,1)/moveRes;
-                
-            if robotCommand(1)>stepSize
-                move=robotCommand(1)/moveRes;
-            else
-                move=robotCommand(1);
-                plan=1;
-            end
-
-            %turn=commands(1,2);
-            steps=steps+1;
-
-            knownPoints=(knownPoints'*Rot(-turn)')';
-            knownPoints=(knownPoints'-ones(size(knownPoints))'*diag([move;0]))';
-
-            beenThere=(beenThere'*Rot(-turn)')';
-            beenThere=(beenThere'-ones(size(beenThere))'*diag([move;0]))';
+            turn=0;
         end
+
+        if steps==reLoc-1
+            plan=1;
+        end
+            %move=commands(1,1)/moveRes;
+
+        if robotCommand(1)>stepSize
+            move=robotCommand(1)/moveRes;
+        else
+            move=robotCommand(1);
+            plan=1;
+        end
+
+        %turn=commands(1,2);
+        steps=steps+1;
+
+        knownPoints=(knownPoints'*Rot(-turn)')';
+        knownPoints=(knownPoints'-ones(size(knownPoints))'*diag([move;0]))';
+
+        beenThere=(beenThere'*Rot(-turn)')';
+        beenThere=(beenThere'-ones(size(beenThere))'*diag([move;0]))';
+
         %display(['commands: ',num2str(move),' ',num2str(turn)]);
 
 

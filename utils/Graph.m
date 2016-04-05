@@ -135,7 +135,7 @@ classdef Graph < handle
                if inpolygon(obj.vertices(obj.startID).coordinates(:,1),obj.vertices(obj.startID).coordinates(:,2),obj.map(:,1),obj.map(:,2))
                     %display('I am inside BORDER map and ORIGINAL map I should keep working\n')
                else
-                    display('Finding path...')
+                    %display('Finding path...')
                     closest = [Inf 0];
                     for i=1:size(obj.map)
                         dist = distance(current.coordinates, obj.map(i,:));
