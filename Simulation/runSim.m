@@ -42,13 +42,13 @@ function [ output_args ] = runSim( input_args )
     %if the value is 1 it will run from predefined start and target positions
     %If the number is greater than 1, the first test will be from predefined
     %positions, and the rest will be randomised.
-    numberOfrepeats = 1;
+    numberOfrepeats = 10;
 
     %Predefined start and target positions
     startPositions =  [20,20;30,20;50,70 ]; %These will change
     targetPositions = [80,80;100,20;230,70]; %These will change
 
-    adminKey =0;% rand(1); %During marking another key will be used ;)
+    adminKey =1;% rand(1); %During marking another key will be used ;)
 
     resultsTime = zeros(size(maps,1),size(noiseLevel,3),numberOfrepeats);
     resultsDis = resultsTime;
@@ -62,7 +62,7 @@ function [ output_args ] = runSim( input_args )
 
         %% marking
         for i = 1:size(maps,1)
-            for j=2:size(noiseLevel,2)
+            for j=1:size(noiseLevel,2)
                 fprintf('map %0.f\t noiseLevels %0.f \n',i,j);
                 for k = 1:numberOfrepeats
                     clf;        %clears figures
@@ -73,7 +73,7 @@ function [ output_args ] = runSim( input_args )
                         target = targetPositions(i,:);
                     else
                         botSim.randomPose(10); %puts the robot in a random position at least 10cm away from a wall
-                        target = botSim.getRndPtInMap(10)  %gets random target
+                        target = botSim.getRndPtInMap(10);  %gets random target
                     end
                     botSim.drawMap();
                     botSim.drawBot(3);

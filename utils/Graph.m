@@ -131,10 +131,11 @@ classdef Graph < handle
                     obj.vertices(current.neighbours(i)).F_cost = obj.vertices(current.neighbours(i)).G_cost + distance(obj.vertices(current.neighbours(i)).coordinates, obj.vertices(obj.targetID).coordinates);
                 end
             end
-           if inpolygon(obj.vertices(obj.startID).coordinates(:,1),obj.vertices(obj.startID).coordinates(:,2),obj.originalMap(:,1),obj.originalMap(:,2))
-               if inpolygon(obj.vertices(obj.startID).coordinates(:,1),obj.vertices(obj.startID).coordinates(:,2),obj.map(:,1),obj.map(:,2))
-                    %display('I am inside BORDER map and ORIGINAL map I should keep working\n')
-               else
+            if inpolygon(obj.vertices(obj.startID).coordinates(:,1),obj.vertices(obj.startID).coordinates(:,2),obj.originalMap(:,1),obj.originalMap(:,2))
+                if inpolygon(obj.vertices(obj.startID).coordinates(:,1),obj.vertices(obj.startID).coordinates(:,2),obj.map(:,1),obj.map(:,2))
+                    display('I am inside BORDER map and ORIGINAL map I should keep working\n')
+                    pathVert=[];
+                else
                     %display('Finding path...')
                     closest = [Inf 0];
                     for i=1:size(obj.map)
@@ -148,18 +149,18 @@ classdef Graph < handle
                     current.G_cost = current.G_cost + distance(current.coordinates, obj.vertices(current.neighbours).coordinates);
                     current.F_cost = obj.vertices(current.neighbours).G_cost + distance(obj.vertices(current.neighbours).coordinates, obj.vertices(obj.targetID).coordinates);
                     pathVert=[current obj.vertices(current.neighbours)];
-               end  
-           else
-               if inpolygon(obj.vertices(obj.startID).coordinates(:,1),obj.vertices(obj.startID).coordinates(:,2),obj.map(:,1),obj.map(:,2))
+                end  
+            else
+                if inpolygon(obj.vertices(obj.startID).coordinates(:,1),obj.vertices(obj.startID).coordinates(:,2),obj.map(:,1),obj.map(:,2))
                        display('I am inside BORDER map and outside ORIGINAL map that is impossible') 
                        display('Not feasible')
                        pathVert=[];% obj.vertices(obj.startID).coordinates;
-               else
+                else
                    display('I am outside BORDER map and outside ORIGINAL map, I am lost')
                    display('Not feasible')
                    pathVert=[];% obj.vertices(obj.startID).coordinates;
-               end  
-           end            
+                end  
+            end            
         end
         
         function pathVert=reconstructPath(obj,current)

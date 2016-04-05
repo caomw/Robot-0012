@@ -4,7 +4,8 @@ function [botSim] = localise(botSim,map,target)
 
     %% setup code
     %you can modify the map to take account of your robots configuration space
-    modifiedMap = MapBorder(map, 5); 
+    wallDistlim=10;
+    modifiedMap = MapBorder(map, wallDistlim); 
     botSim.setMap(map);
 
     %% Scan configuration: 180 degrees vision
@@ -18,7 +19,7 @@ function [botSim] = localise(botSim,map,target)
 
 
     % generate some random particles inside the map
-    num = 500; % number of particles
+    num = 200; % number of particles
     particles(num,1) = BotSim; %how to set up a vector of objects
     isPFLdone = 0;
     botEstimate = BotSim(map);  %sets up botSim object with adminKey
@@ -52,15 +53,17 @@ function [botSim] = localise(botSim,map,target)
     unitV=[0;1];
     direction=0;
     robotCommand=zeros(1,2);
-    while(d>stepSize && n < maxNumOfIterations) %%particle filter loop
+    dlim=2;
+    done=0;
+    while(~done) %%particle filter loop
         %tic
         n = n+1; %increment the current number of iterations
         botScan = botSim.ultraScan(); %get a scan from the real robot.
-
+        [nearest,nidx]=min(botScan);
         %% Write code for updating your particles scans
         [pose, isPFLdone] = PFL( botScan, particles, isPFLdone );
         %pose=[0 0 0];
-        pose
+        %pose
         botEstimate.setBotPos(pose(1:2));
         botEstimate.setBotAng(pose(3));
         for i=1:numel(botScan)
@@ -76,7 +79,7 @@ function [botSim] = localise(botSim,map,target)
         explore=~isPFLdone;
         
         if gotoTarget && plan
-            display('Target plan')
+            %display('Target plan')
             
             %pose(3)=mod(pose(3),pi);
             %{
@@ -90,12 +93,12 @@ function [botSim] = localise(botSim,map,target)
             plan=0;
             steps=0;
         elseif explore && plan
-            display('Explore plan')
+            %display('Explore plan')
 
             directionNew=pathExplore(knownPoints,beenThere);
 
             e=1;
-            robotCommand(2)=e*directionNew+(1-e)*direction;
+            robotCommand(2)=0;% e*directionNew+(1-e)*direction;
             direction=directionNew;
             robotCommand(1)=4;
 
@@ -153,7 +156,14 @@ function [botSim] = localise(botSim,map,target)
         if steps==reLoc-1
             plan=1;
         end
-            %move=commands(1,1)/moveRes;
+            
+        if nearest<wallDistlim*0.8
+            if abs(scanLines(nidx))<0.1
+                turn=0.9*pi;
+            else
+                turn=-2*sign(scanLines(nidx))*(pi/2-abs(scanLines(nidx)));
+            end
+        end
 
         if robotCommand(1)>stepSize
             move=robotCommand(1)/moveRes;
@@ -181,15 +191,23 @@ function [botSim] = localise(botSim,map,target)
         for i =1:num %for all the particles. 
             particles(i).turn(turn); %turn the particle in the same way as the real robot
             particles(i).move(move); %move the particle in the same way as the real robot
+            % check if particles are inside the map
+            if particles(i).insideMap() == 0
+                particles(i).randomPose(0);
+            end
         end
         botEstimate.turn(turn);
         botEstimate.move(move);
-
         % check if robot is inside the map
-        if particles(i).insideMap() == 0
-            particles(i).randomPose(0);
+        if botEstimate.insideMap() == 0 && isPFLdone
+            display('Error: robot outside the map')
+            done=1;
         end
-        d=distance(pose(1:2),target);
+        
+        if distance(pose(1:2),target)<dlim && isPFLdone
+            done=1;
+        end
+        
         %toc
     end
 end
