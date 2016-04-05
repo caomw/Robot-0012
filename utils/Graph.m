@@ -133,7 +133,7 @@ classdef Graph < handle
             end
             if inpolygon(obj.vertices(obj.startID).coordinates(:,1),obj.vertices(obj.startID).coordinates(:,2),obj.originalMap(:,1),obj.originalMap(:,2))
                 if inpolygon(obj.vertices(obj.startID).coordinates(:,1),obj.vertices(obj.startID).coordinates(:,2),obj.map(:,1),obj.map(:,2))
-                    display('I am inside BORDER map and ORIGINAL map I should keep working\n')
+                    %display('I am inside BORDER map and ORIGINAL map I should keep working\n')
                     pathVert=[];
                 else
                     %display('Finding path...')

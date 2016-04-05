@@ -1,4 +1,4 @@
-function [ output_args ] = runSim( input_args )
+function [ output_args ] = runSim( adminKey )
 %RUNSIM Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -42,13 +42,13 @@ function [ output_args ] = runSim( input_args )
     %if the value is 1 it will run from predefined start and target positions
     %If the number is greater than 1, the first test will be from predefined
     %positions, and the rest will be randomised.
-    numberOfrepeats = 10;
+    numberOfrepeats = 50;
 
     %Predefined start and target positions
     startPositions =  [20,20;30,20;50,70 ]; %These will change
     targetPositions = [80,80;100,20;230,70]; %These will change
 
-    adminKey =1;% rand(1); %During marking another key will be used ;)
+    %adminKey =1;% rand(1); %During marking another key will be used ;)
 
     resultsTime = zeros(size(maps,1),size(noiseLevel,3),numberOfrepeats);
     resultsDis = resultsTime;
@@ -61,7 +61,7 @@ function [ output_args ] = runSim( input_args )
         disp('marking...')
 
         %% marking
-        for i = 1:size(maps,1)
+        for i = 2:size(maps,1)
             for j=1:size(noiseLevel,2)
                 fprintf('map %0.f\t noiseLevels %0.f \n',i,j);
                 for k = 1:numberOfrepeats

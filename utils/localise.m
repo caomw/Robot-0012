@@ -7,6 +7,7 @@ function [botSim] = localise(botSim,map,target)
     wallDistlim=10;
     modifiedMap = MapBorder(map, wallDistlim); 
     botSim.setMap(map);
+    botDummy=BotSim(modifiedMap);
 
     %% Scan configuration: 180 degrees vision
     startAngle =-pi/2;
@@ -33,7 +34,10 @@ function [botSim] = localise(botSim,map,target)
         % set noise for particles
         particles(i).setMotionNoise(1);
         particles(i).setTurningNoise(0.1);
+        
+        %drawP{i} = line( 'color','g', 'LineStyle','none','LineWidth',1,'Marker','x','MarkerSize',10,'erase','xor','xdata',particles(i).getBotPos(1),'ydata',particles(i).getBotPos(2));
     end
+    %h = animatedline('Color','g','LineStyle','none','Marker','x','MaximumNumPoints',num);
 
     %% Localisation code
     maxNumOfIterations = Inf;
@@ -88,8 +92,14 @@ function [botSim] = localise(botSim,map,target)
             end
             %}
             commands=pathPlan(pose,target,modifiedMap, map);
-            robotCommand=commands(1,:);
-            direction=robotCommand(2);
+            if ~isempty(commands)
+                robotCommand=commands(1,:);
+                direction=robotCommand(2);
+            else
+                robotCommand(2)=0;%e*directionNew+(1-e)*direction
+                direction=directionNew;
+                robotCommand(1)=4;
+            end
             plan=0;
             steps=0;
         elseif explore && plan
@@ -97,15 +107,15 @@ function [botSim] = localise(botSim,map,target)
 
             directionNew=pathExplore(knownPoints,beenThere);
 
-            e=1;
-            robotCommand(2)=0;% e*directionNew+(1-e)*direction;
+            e=0;
+            robotCommand(2)=0;%e*directionNew+(1-e)*direction
             direction=directionNew;
-            robotCommand(1)=4;
+            robotCommand(1)=stepSize;
 
             plan=0;
             steps=0;
         end
-  
+        %robotCommand
         beenThere(:,1)=[0;0];
         beenThere = circshift(beenThere,1,2);
 
@@ -115,6 +125,7 @@ function [botSim] = localise(botSim,map,target)
         if botSim.debug()
             figure(1)
             hold off; %the drawMap() function will clear the drawing when hold is off
+            botDummy.drawMap();
             botSim.drawMap(); %drawMap() turns hold back on again, so you can draw the bots
             botSim.drawBot(30,'g'); %draw robot with line length 30 and green
             botSim.drawScanConfig();
@@ -124,7 +135,10 @@ function [botSim] = localise(botSim,map,target)
             if drawParticles
                 for i =1:num
                     particles(i).drawBot(3); %draw particle with line length 3 and default color
+                    %set(drawP{i},'xdata',particles(i).getBotPos(1),'ydata',particles(i).getBotPos(2));
+                    %addpoints(h,particles(i).getBotPos(1),particles(i).getBotPos(2));
                 end
+                %h.Visible='on';
             end
             plot(target(1),target(2),'xr')
             
@@ -157,19 +171,22 @@ function [botSim] = localise(botSim,map,target)
             plan=1;
         end
             
-        if nearest<wallDistlim*0.8
-            if abs(scanLines(nidx))<0.1
-                turn=0.9*pi;
-            else
-                turn=-2*sign(scanLines(nidx))*(pi/2-abs(scanLines(nidx)));
-            end
-        end
+        
 
         if robotCommand(1)>stepSize
-            move=robotCommand(1)/moveRes;
+            move=stepSize;%robotCommand(1)/moveRes;
         else
             move=robotCommand(1);
             plan=1;
+        end
+        
+        nearestNext=nearest-move*cos(scanLines(nidx)+turn);
+        if nearestNext<wallDistlim*0.9
+            if abs(scanLines(nidx))<0.1
+                turn=0.9*pi;
+            else
+                turn=-2*sign(scanLines(nidx))*(pi/2-abs(scanLines(nidx)))+0.1*(rand(1)-0.5)*(pi/2-abs(scanLines(nidx)));
+            end
         end
 
         %turn=commands(1,2);
@@ -204,9 +221,11 @@ function [botSim] = localise(botSim,map,target)
             done=1;
         end
         
-        if distance(pose(1:2),target)<dlim && isPFLdone
+        if (distance(pose(1:2),target)<dlim && isPFLdone) || toc>100
             done=1;
         end
+        
+        
         
         %toc
     end
