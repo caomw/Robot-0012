@@ -20,7 +20,7 @@ function [botSim] = localise(botSim,map,target)
 
 
     % generate some random particles inside the map
-    num = 200; % number of particles
+    num = 400; % number of particles
     particles(num,1) = BotSim; %how to set up a vector of objects
     isPFLdone = 0;
     botEstimate = BotSim(map);  %sets up botSim object with adminKey
@@ -105,10 +105,10 @@ function [botSim] = localise(botSim,map,target)
         elseif explore && plan
             %display('Explore plan')
 
-            %directionNew=pathExplore(knownPoints,beenThere);
+            directionNew=pathExplore(knownPoints,beenThere);
 
-            e=0;
-            robotCommand(2)=0;%e*directionNew+(1-e)*direction
+            e=0.1;
+            robotCommand(2)=e*directionNew;
             %direction=directionNew;
             robotCommand(1)=stepSize;
 
@@ -183,11 +183,11 @@ function [botSim] = localise(botSim,map,target)
         end
         
         nearestNext=nearest-move*cos(scanLines(nidx)+turn);
-        if nearestNext<wallDistlim*0.8
+        if nearestNext<wallDistlim*0.9
             if abs(scanLines(nidx))<0.1
                 turn=0.9*pi;
             else
-                turn=-2*sign(scanLines(nidx))*(pi/2-abs(scanLines(nidx)))+0.1*(rand(1)-0.5)*(pi/2-abs(scanLines(nidx)));
+                turn=-2*sign(scanLines(nidx))*(pi/2-abs(scanLines(nidx)))+0.05*(rand(1)-0.5)*abs(scanLines(nidx));
             end
         end
 

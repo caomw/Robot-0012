@@ -42,7 +42,7 @@ function [ output_args ] = runSim( adminKey )
     %if the value is 1 it will run from predefined start and target positions
     %If the number is greater than 1, the first test will be from predefined
     %positions, and the rest will be randomised.
-    numberOfrepeats = 50;
+    numberOfrepeats = 100;
 
     %Predefined start and target positions
     startPositions =  [20,20;30,20;50,70 ]; %These will change
@@ -61,7 +61,7 @@ function [ output_args ] = runSim( adminKey )
         disp('marking...')
 
         %% marking
-        for i = 2:size(maps,1)
+        for i = 1:size(maps,1)
             for j=1:size(noiseLevel,2)
                 fprintf('map %0.f\t noiseLevels %0.f \n',i,j);
                 for k = 1:numberOfrepeats
@@ -73,7 +73,7 @@ function [ output_args ] = runSim( adminKey )
                         target = targetPositions(i,:);
                     else
                         botSim.randomPose(10); %puts the robot in a random position at least 10cm away from a wall
-                        target = botSim.getRndPtInMap(10);  %gets random target
+                        target = botSim.getRndPtInMap(6);  %gets random target
                     end
                     botSim.drawMap();
                     botSim.drawBot(3);
@@ -134,6 +134,8 @@ function [ output_args ] = runSim( adminKey )
         ResultsTable = table(averageCompletionTime, averageDisFromTgt, averagePathLength, percentCollision,'RowNames',{'Map1';'Map2';'Map3'})
     end
     
+    output_args{1}=resultsTime;
+    output_args{2}=resultsDis;
 
 end
 
