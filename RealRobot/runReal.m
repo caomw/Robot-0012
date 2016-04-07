@@ -86,7 +86,7 @@ function [ output_args ] = runReal( input_args )
                     %% stuff
                     
                     %localization
-                    returnedBot = localiseReal(botSim,maps{i},target);
+                    returnedBot = localiseReal2(botSim,maps{i},target);
                     
                     
                     

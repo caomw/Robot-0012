@@ -36,8 +36,8 @@ classdef RealRobot < handle
             obj.motor(1).SendToNXT(); 
             obj.motor(2).SendToNXT();
             
-            obj.mSensorPower=10;
-            obj.mSensor= NXTMotor('C', 'Power', obj.mSensorPower,'SpeedRegulation',false,'TachoLimit',0,'ActionAtTachoLimit','Brake','SmoothStart',false);
+            obj.mSensorPower=50;
+            obj.mSensor= NXTMotor('C', 'Power', obj.mSensorPower,'SpeedRegulation',true,'TachoLimit',0,'ActionAtTachoLimit','Brake','SmoothStart',false);
             
             obj.sensorRays=20;
             obj.sensRange=75;
@@ -49,6 +49,9 @@ classdef RealRobot < handle
             obj.sendMotorCommand(theta,1);
         end
         function turn(obj,angle)
+            if abs(angle)>2*pi
+                angle=deg2rad(angle);
+            end
             theta=obj.turnTo(rad2deg(angle));
             obj.sendMotorCommand(theta,1);
         end
@@ -74,10 +77,10 @@ classdef RealRobot < handle
             
             a_lim=obj.sensRange;
             obj.turnSensor(-a_lim,1,90);            
-            obj.turnSensor(a_lim,0,5); 
+            obj.turnSensor(a_lim,0); 
             angle=obj.getSensAngle();
             c=0;
-            while angle<direction*a_lim
+            while angle<direction*a_lim-5
                 c=c+1;
                 %obj.mSensor.SendToNXT(); 
                 %obj.mSensor.WaitFor();
