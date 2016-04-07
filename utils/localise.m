@@ -63,6 +63,10 @@ function [botSim] = localise(botSim,map,target)
         %tic
         n = n+1; %increment the current number of iterations
         botScan = botSim.ultraScan(); %get a scan from the real robot.
+        
+        %%Fitting & Resampling - example
+        botScan = fitting(botScan);
+        
         [nearest,nidx]=min(botScan);
         %% Write code for updating your particles scans
         [pose, isPFLdone] = PFL( botScan, particles, isPFLdone );
