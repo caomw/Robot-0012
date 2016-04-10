@@ -66,7 +66,7 @@ function [botSim] = localiseReal2(botSim,map,target)
         scan=[];
         while isempty(scan)
             scan = botReal.ultraScan();
-            display('Scan again');
+            %display('Scan again');
         end
         scanLines=scan(:,1)';
         botScan=scan(:,2);
