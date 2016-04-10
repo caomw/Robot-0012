@@ -66,7 +66,8 @@ function [botSim] = localise(botSim,map,target)
         botScan = botSim.ultraScan(); %get a scan from the real robot.
         [nearest,nidx]=min(botScan);
         %% Write code for updating your particles scans
-        [pose, isPFLdone] = PFL( botScan, particles, isPFLdone, botEstimate );
+        [pose, isPFLdone] = PFL( botScan, particles, isPFLdone );
+        %[pose, isPFLdone] = PFL2( botScan, particles, isPFLdone, botEstimate );
         %pose=[0 0 0];
         %pose
         botEstimate.setBotPos(pose(1:2));
@@ -108,7 +109,7 @@ function [botSim] = localise(botSim,map,target)
 
             directionNew=pathExplore(knownPoints,beenThere);
 
-            e=0.1;
+            e=0.3;
             robotCommand(2)=e*directionNew;
             %direction=directionNew;
             robotCommand(1)=stepSize;
