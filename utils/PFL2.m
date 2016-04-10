@@ -44,16 +44,6 @@ for i = 1:num
         count = count + 1; % update count
         newPos(count, :) = particles(index).getBotPos();
         newAng(count) = particles(index).getBotAng();
-
-        % motion model: for spreading out particles
-        %{
-        transstd = 1;
-        orientstd = 1;
-        e = 0 + transstd * randn(1, 2);
-        f = 0 + orientstd * randn(1,1) * (pi/180);
-        newPos(count, :) = newPos(count, :) + e;
-        newAng(count) = newAng(count) + f;
-        %}
     end
 
     % update total number of new-born particles
@@ -70,15 +60,6 @@ angle = meanangle(newAng);
 
 %% update current particles
 for i = 1:num
-    % motion model
-    %{
-    transstd = 1;
-    orientstd = 1;
-    e = 0 + transstd * randn(1, 2);
-    f = 0 + orientstd * randn(1,1) * (pi/180);
-    newPos(count, :) = newPos(count, :) + e;
-    newAng(count) = newAng(count) + f;
-    %}
     particles(i).setBotPos( newPos(i, :) );
     particles(i).setBotAng( newAng(i) );
 end
@@ -91,8 +72,6 @@ if isPFLdone == 0
 end
 
 %% return
-% position = mean(newPos);
-% angle = mean(newAng);
 pose = [position, angle];
 if isPFLdone == 0 && sumeig < 10
     isPFLdone = 1;
