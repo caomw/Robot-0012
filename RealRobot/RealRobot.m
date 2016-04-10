@@ -36,7 +36,7 @@ classdef RealRobot < handle
             obj.motor(1).SendToNXT(); 
             obj.motor(2).SendToNXT();
             
-            obj.mSensorPower=50;
+            obj.mSensorPower=10;
             obj.mSensor= NXTMotor('C', 'Power', obj.mSensorPower,'SpeedRegulation',true,'TachoLimit',0,'ActionAtTachoLimit','Brake','SmoothStart',false);
             
             obj.sensorRays=20;
@@ -92,7 +92,9 @@ classdef RealRobot < handle
                 %fprintf(fid, '%f \n', R(c)');
             end
             %if wait
+            %angle
             obj.mSensor.WaitFor();
+            obj.mSensor.Stop('off');
                 %pause(2);
             %end
             
@@ -130,17 +132,20 @@ classdef RealRobot < handle
             scan=scan(1:scanSteps:end,:);
             scan(:,1)=deg2rad(scan(:,1));
             
-            
+            %scan(:,2)
+            %fitted=fitting2(scan(:,2));
             
             if nargin>1
-                dlmwrite(['scanresult_' num2str(num)],scanRaw)
-                plot(scanRaw(:,1),scanRaw(:,2),'x')
+                dlmwrite(['scanresult_' num2str(num) '.txt'],scanRaw)
+                figure(100)
+                plot(deg2rad(scanRaw(:,1)),scanRaw(:,2),'.')
                 hold on
                 plot(scan(:,1),scan(:,2),'.')
-                plot(dscan(:,1),dscan(:,2),'.')
+                plot(scan(:,1),fitted(:),'x')
+                %plot(dscan(:,1),dscan(:,2),'.')
                 hold off
                 grid on
-                axis([-90 90 -10 100]);
+                axis([-pi/2 pi/2 -10 100]);
             end
             
             
@@ -177,6 +182,7 @@ classdef RealRobot < handle
             if nargin>2
                 if wait
                     obj.mSensor.WaitFor();
+                    obj.mSensor.Stop('off');
                 end
             end
         end
