@@ -24,6 +24,7 @@ function [botSim] = localise(botSim,map,target)
     particles(num,1) = BotSim; %how to set up a vector of objects
     isPFLdone = 0;
     botEstimate = BotSim(map);  %sets up botSim object with adminKey
+    botEstimate.setScanConfig(scanConfig);
     for i = 1:num
         particles(i) = BotSim(map);  %each particle should use the same map as the botSim object
         particles(i).randomPose(0); %spawn the particles in random locations
@@ -65,7 +66,7 @@ function [botSim] = localise(botSim,map,target)
         botScan = botSim.ultraScan(); %get a scan from the real robot.
         [nearest,nidx]=min(botScan);
         %% Write code for updating your particles scans
-        [pose, isPFLdone] = PFL( botScan, particles, isPFLdone );
+        [pose, isPFLdone] = PFL( botScan, particles, isPFLdone, botEstimate );
         %pose=[0 0 0];
         %pose
         botEstimate.setBotPos(pose(1:2));
