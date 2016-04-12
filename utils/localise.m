@@ -1,4 +1,4 @@
-function [botSim] = localise(botSim,map,target)
+function [botSim] = goToTarget(botSim,map,target)
 %This function returns botSim, and accepts, botSim, a map and a target.
 %LOCALISE Template localisation function
 
@@ -47,7 +47,7 @@ function [botSim] = localise(botSim,map,target)
     d=Inf;
     moveRes=5;
     stepSize=5;
-    reLoc=0;
+    reLoc=3;
     exploreSteps=2;
     steps=0;
 
@@ -66,8 +66,8 @@ function [botSim] = localise(botSim,map,target)
         botScan = botSim.ultraScan(); %get a scan from the real robot.
         [nearest,nidx]=min(botScan);
         %% Write code for updating your particles scans
-        [pose, isPFLdone] = PFL( botScan, particles, isPFLdone );
-        %[pose, isPFLdone] = PFL2( botScan, particles, isPFLdone, botEstimate );
+        %[pose, isPFLdone] = PFL( botScan, particles, isPFLdone );
+        [pose, isPFLdone] = PFL2( botScan, particles, isPFLdone, botEstimate );
         %pose=[0 0 0];
         %pose
         botEstimate.setBotPos(pose(1:2));
@@ -104,6 +104,7 @@ function [botSim] = localise(botSim,map,target)
             end
             plan=0;
             steps=0;
+            nextPdist=robotCommand(1);
         elseif explore && plan
             %display('Explore plan')
 
@@ -116,9 +117,11 @@ function [botSim] = localise(botSim,map,target)
 
             plan=0;
             steps=0;
+            nextPdist=robotCommand(1);
         else
             %display('Just go')
         end
+            
         %robotCommand
         beenThere(:,1)=[0;0];
         beenThere = circshift(beenThere,1,2);
@@ -177,20 +180,22 @@ function [botSim] = localise(botSim,map,target)
             
         
 
-        if robotCommand(1)>stepSize
+        if nextPdist>stepSize
             move=stepSize;%robotCommand(1)/moveRes;
         else
-            move=robotCommand(1);
+            move=nextPdist;
             plan=1;
         end
+        nextPdist=nextPdist-move;
         
         nearestNext=nearest-move*cos(scanLines(nidx)+turn);
-        if nearestNext<wallDistlim*0.9
+        if nearestNext<wallDistlim*0.8
             if abs(scanLines(nidx))<0.1
                 turn=0.9*pi;
             else
                 turn=-2*sign(scanLines(nidx))*(pi/2-abs(scanLines(nidx)))+0.05*(rand(1)-0.5)*abs(scanLines(nidx));
             end
+            plan=0;
         end
 
         %turn=commands(1,2);

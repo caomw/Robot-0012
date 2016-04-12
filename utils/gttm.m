@@ -1,14 +1,30 @@
-function [botSim] = localiseReal2(botSim,map,target)
+function [botSim] = gttm(threadNum,botSim,map,target)
 %This function returns botSim, and accepts, botSim, a map and a target.
 %LOCALISE Template localisation function
     
+    switch threadNum
+        case -1
+            disp('nothing')
+        case 1
+            disp('1')
+            labBarrier;
+            disp('1 finished')
+        case 2
+            disp('2')
+            pause(1);
+            labBarrier;
+            disp('2 finished')
+                
+        otherwise
+            disp('other value')
+    end
+return
     %% setup code
     %you can modify the map to take account of your robots configuration space
     wallDistlim=6;
     modifiedMap = MapBorder2(map, wallDistlim); 
     botSim.setMap(map);
     botDummy=BotSim(modifiedMap);
-    botReal=RealRobot();
 
     %% Scan configuration: 180 degrees vision
     startAngle =-pi/2;
@@ -25,6 +41,7 @@ function [botSim] = localiseReal2(botSim,map,target)
     particles(num,1) = BotSim; %how to set up a vector of objects
     isPFLdone = 0;
     botEstimate = BotSim(map);  %sets up botSim object with adminKey
+    botEstimate.setScanConfig(scanConfig);
     for i = 1:num
         particles(i) = BotSim(map);  %each particle should use the same map as the botSim object
         particles(i).randomPose(0); %spawn the particles in random locations
@@ -47,7 +64,7 @@ function [botSim] = localiseReal2(botSim,map,target)
     d=Inf;
     moveRes=5;
     stepSize=5;
-    reLoc=0;
+    reLoc=3;
     exploreSteps=2;
     steps=0;
 
@@ -63,23 +80,11 @@ function [botSim] = localiseReal2(botSim,map,target)
     while(~done) %%particle filter loop
         %tic
         n = n+1; %increment the current number of iterations
-        scan=[];
-        while isempty(scan)
-            scan = botReal.ultraScan();
-            %display('Scan again');
-        end
-        scanLines=scan(:,1)';
-        botScan=scan(:,2);
-        scanConfig =  cat(1,cos(scanLines), sin(scanLines))'*30;
-        botSim.setScanConfig(scanConfig);   
-        for i = 1:num
-            particles(i).setScanConfig(scanConfig);
-        end
-        
-        %botScan = botSim.ultraScan(); %get a scan from the real robot.
+        botScan = botSim.ultraScan(); %get a scan from the real robot.
         [nearest,nidx]=min(botScan);
         %% Write code for updating your particles scans
-        [pose, isPFLdone] = PFL( botScan, particles, isPFLdone );
+        %[pose, isPFLdone] = PFL( botScan, particles, isPFLdone );
+        [pose, isPFLdone] = PFL2( botScan, particles, isPFLdone, botEstimate );
         %pose=[0 0 0];
         %pose
         botEstimate.setBotPos(pose(1:2));
@@ -116,21 +121,24 @@ function [botSim] = localiseReal2(botSim,map,target)
             end
             plan=0;
             steps=0;
+            nextPdist=robotCommand(1);
         elseif explore && plan
             %display('Explore plan')
 
             directionNew=pathExplore(knownPoints,beenThere);
 
-            e=0.1;
+            e=0.3;
             robotCommand(2)=e*directionNew;
             %direction=directionNew;
             robotCommand(1)=stepSize;
 
             plan=0;
             steps=0;
+            nextPdist=robotCommand(1);
         else
             %display('Just go')
         end
+            
         %robotCommand
         beenThere(:,1)=[0;0];
         beenThere = circshift(beenThere,1,2);
@@ -189,23 +197,22 @@ function [botSim] = localiseReal2(botSim,map,target)
             
         
 
-        if robotCommand(1)>stepSize
+        if nextPdist>stepSize
             move=stepSize;%robotCommand(1)/moveRes;
         else
-            move=robotCommand(1);
+            move=nextPdist;
             plan=1;
         end
-        if isempty(nearest)
-            botScan
-            nearest=0;
-        end
+        nextPdist=nextPdist-move;
+        
         nearestNext=nearest-move*cos(scanLines(nidx)+turn);
-        if nearestNext<wallDistlim*0.9
+        if nearestNext<wallDistlim*0.8
             if abs(scanLines(nidx))<0.1
                 turn=0.9*pi;
             else
                 turn=-2*sign(scanLines(nidx))*(pi/2-abs(scanLines(nidx)))+0.05*(rand(1)-0.5)*abs(scanLines(nidx));
             end
+            plan=0;
         end
 
         %turn=commands(1,2);
@@ -224,8 +231,6 @@ function [botSim] = localiseReal2(botSim,map,target)
         %% Move
         botSim.turn(turn); %turn the real robot.  
         botSim.move(move); %move the real robot. These movements are recorded for marking 
-        botReal.turn(turn);
-        botReal.move(move);
         for i =1:num %for all the particles. 
             particles(i).turn(turn); %turn the particle in the same way as the real robot
             particles(i).move(move); %move the particle in the same way as the real robot
@@ -242,7 +247,7 @@ function [botSim] = localiseReal2(botSim,map,target)
             done=1;
         end
         
-        if (distance(pose(1:2),target)<dlim && isPFLdone) || toc>1000
+        if (distance(pose(1:2),target)<dlim && isPFLdone) || toc>100
             done=1;
         end
         

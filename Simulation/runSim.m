@@ -75,18 +75,19 @@ function [ output_args ] = runSim( adminKey )
                         botSim.randomPose(10); %puts the robot in a random position at least 10cm away from a wall
                         target = botSim.getRndPtInMap(6);  %gets random target
                     end
-                    botSim.drawMap();
-                    botSim.drawBot(3);
-                    plot(target(1),target(2),'*');
-                    hold off;
-                    drawnow;
+                    %botSim.drawMap();
+                    %botSim.drawBot(3);
+                    %plot(target(1),target(2),'*');
+                    %hold off;
+                    %drawnow;
 
                     tic %starts timer
                     %calls your (hopefully finished) localisation function
                     %% stuff
                     
                     %localization
-                    returnedBot = goToTarget(botSim,maps{i},target);
+                    %returnedBot = goToTarget(botSim,maps{i},target);
+                    returnedBot = goToTargetMulti(botSim,maps{i},target);
                     
                     
                     
