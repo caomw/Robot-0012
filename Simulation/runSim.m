@@ -42,7 +42,7 @@ function [ output_args ] = runSim( adminKey )
     %if the value is 1 it will run from predefined start and target positions
     %If the number is greater than 1, the first test will be from predefined
     %positions, and the rest will be randomised.
-    numberOfrepeats = 1;
+    numberOfrepeats = 10;
 
     %Predefined start and target positions
     startPositions =  [20,20;30,20;50,70 ]; %These will change
@@ -61,7 +61,7 @@ function [ output_args ] = runSim( adminKey )
         disp('marking...')
 
         %% marking
-        for i = 2:size(maps,1)
+        for i = 1:size(maps,1)
             for j=1:size(noiseLevel,2)
                 fprintf('map %0.f\t noiseLevels %0.f \n',i,j);
                 for k = 1:numberOfrepeats
@@ -86,7 +86,7 @@ function [ output_args ] = runSim( adminKey )
                     %% stuff
                     
                     %localization
-                    returnedBot = localise(botSim,maps{i},target);
+                    returnedBot = goToTarget(botSim,maps{i},target);
                     
                     
                     
