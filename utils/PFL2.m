@@ -1,4 +1,4 @@
-function [ pose, isPFLdone ] = PFL( botScan, particles, isPFLdone, botEstimate )
+function [ pose, isPFLdone ] = PFL2( botScan, particles, isPFLdone, botEstimate )
 %% create spaces to store information for the purpose of resampling
 num = size(particles, 1);
 newPos = zeros(num, 2);

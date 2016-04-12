@@ -61,7 +61,7 @@ function [ output_args ] = runSim( adminKey )
         disp('marking...')
 
         %% marking
-        for i = 1:size(maps,1)
+        for i = 2:size(maps,1)
             for j=1:size(noiseLevel,2)
                 fprintf('map %0.f\t noiseLevels %0.f \n',i,j);
                 for k = 1:numberOfrepeats
