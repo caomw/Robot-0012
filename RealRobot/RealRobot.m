@@ -28,7 +28,7 @@ classdef RealRobot < handle
             OpenUltrasonic(SENSOR_1);
             
             obj.motor=NXTMotor.empty(2,0);
-            obj.motorPow=30;
+            obj.motorPow=50;
             %left
             obj.motor(1)= NXTMotor('A', 'Power',0,'SpeedRegulation',true,'TachoLimit',0,'ActionAtTachoLimit','Brake','SmoothStart',true);
             %right
@@ -36,11 +36,11 @@ classdef RealRobot < handle
             obj.motor(1).SendToNXT(); 
             obj.motor(2).SendToNXT();
             
-            obj.mSensorPower=20;
-            obj.mSensor= NXTMotor('C', 'Power', obj.mSensorPower,'SpeedRegulation',false,'TachoLimit',0,'ActionAtTachoLimit','Brake','SmoothStart',false);
+            obj.mSensorPower=50;
+            obj.mSensor= NXTMotor('C', 'Power', obj.mSensorPower,'SpeedRegulation',true,'TachoLimit',0,'ActionAtTachoLimit','Brake','SmoothStart',false);
             
             obj.sensorRays=20;
-            obj.sensRange=80;
+            obj.sensRange=75;
         end
         
         
@@ -49,6 +49,9 @@ classdef RealRobot < handle
             obj.sendMotorCommand(theta,1);
         end
         function turn(obj,angle)
+            if abs(angle)>2*pi
+                angle=deg2rad(angle);
+            end
             theta=obj.turnTo(rad2deg(angle));
             obj.sendMotorCommand(theta,1);
         end
@@ -60,7 +63,7 @@ classdef RealRobot < handle
             
         end
         
-        function scan=ultraScan(obj)
+        function scan=ultraScan(obj,num)
             %TODO move around, and take mesaurements
             
             
@@ -73,11 +76,11 @@ classdef RealRobot < handle
             direction=1;
             
             a_lim=obj.sensRange;
-            obj.turnSensor(-a_lim,1);            
+            obj.turnSensor(-a_lim,1,90);            
             obj.turnSensor(a_lim,0); 
             angle=obj.getSensAngle();
             c=0;
-            while angle<direction*a_lim
+            while angle<direction*a_lim-5
                 c=c+1;
                 %obj.mSensor.SendToNXT(); 
                 %obj.mSensor.WaitFor();
@@ -97,7 +100,7 @@ classdef RealRobot < handle
             %obj.mSensor.TachoLimit=resolution;
             
             %fclose(fid);
-            obj.turnSensor(0,1); 
+            obj.turnSensor(0,1,90); 
             %NXT_PlayTone(500, 100);
             angles=angles(dist~=255);
             dist=dist(dist~=255);
@@ -118,7 +121,6 @@ classdef RealRobot < handle
             scanRaw=[angles(dist~=-1) dist(dist~=-1)];
             
             
-            %dlmwrite('scanresult',scanRaw)
             dscan=[scanRaw(1:end-1,1) diff(scanRaw(:,2))];
             mask=abs(dscan(:,2))<5;
             mask=and(and(mask,circshift(mask,1)),circshift(mask,-1));
@@ -130,15 +132,17 @@ classdef RealRobot < handle
             
             
             
-            %{
-            plot(scanRaw(:,1),scanRaw(:,2),'x')
-            hold on
-            plot(scan(:,1),scan(:,2),'.')
-            plot(dscan(:,1),dscan(:,2),'.')
-            hold off
-            grid on
-            axis([-90 90 -10 100]);
-            %}
+            if nargin>1
+                dlmwrite(['scanresult_' num2str(num)],scanRaw)
+                plot(scanRaw(:,1),scanRaw(:,2),'x')
+                hold on
+                plot(scan(:,1),scan(:,2),'.')
+                plot(dscan(:,1),dscan(:,2),'.')
+                hold off
+                grid on
+                axis([-90 90 -10 100]);
+            end
+            
             
         end
         
@@ -157,17 +161,23 @@ classdef RealRobot < handle
             
         end
         
-        function turnSensor(obj,angle,wait)
+        function turnSensor(obj,angle,wait,pow)
             
             data=obj.mSensor.ReadFromNXT();
             angle=-angle;
             data.Position=data.Position;
             obj.mSensor.TachoLimit=abs(angle-data.Position);
-            obj.mSensor.Power=obj.mSensorPower*sign(angle-data.Position);
+            if nargin>3
+                obj.mSensor.Power=pow*sign(angle-data.Position);
+            else
+                obj.mSensor.Power=obj.mSensorPower*sign(angle-data.Position);
+            end
             obj.mSensor.SendToNXT();
             
-            if wait
-                obj.mSensor.WaitFor();
+            if nargin>2
+                if wait
+                    obj.mSensor.WaitFor();
+                end
             end
         end
         
