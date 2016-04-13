@@ -1,6 +1,6 @@
 function [out] = meanangle(in,dim,sens);
 
-% MEANANGLE will calculate the mean of a set of angles (in degrees) based
+% MEANANGLE will calculate the mean of a set of angles (in radians) based
 % on polar considerations.
 %
 % Usage: [out] = meanangle(in,dim)
