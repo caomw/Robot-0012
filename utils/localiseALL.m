@@ -1,14 +1,17 @@
-function [botSim] = localiseReal2(botSim,map,target)
+function [botSim] = localiseALL(botSim,map,target)
 %This function returns botSim, and accepts, botSim, a map and a target.
 %LOCALISE Template localisation function
-    
+    REAL=true;
+    drawParticles=true;
     %% setup code
     %you can modify the map to take account of your robots configuration space
     wallDistlim=10;
     modifiedMap = MapBorder2(map, wallDistlim); 
     botSim.setMap(map);
     botDummy=BotSim(modifiedMap);
-    botReal=RealRobot();
+    if REAL
+        botReal=RealRobot();
+    end
 
     %% Scan configuration: 180 degrees vision
     startAngle =-pi/2;
@@ -21,10 +24,11 @@ function [botSim] = localiseReal2(botSim,map,target)
 
 
     % generate some random particles inside the map
-    num = 400; % number of particles
+    num = 200; % number of particles
     particles(num,1) = BotSim; %how to set up a vector of objects
     isPFLdone = 0;
     botEstimate = BotSim(map);  %sets up botSim object with adminKey
+    botEstimate.setScanConfig(scanConfig);
     for i = 1:num
         particles(i) = BotSim(map);  %each particle should use the same map as the botSim object
         particles(i).randomPose(0); %spawn the particles in random locations
@@ -35,7 +39,7 @@ function [botSim] = localiseReal2(botSim,map,target)
         % set noise for particles
         particles(i).setMotionNoise(1);
         particles(i).setTurningNoise(0.1);
-        
+        particles(i).setSensorNoise(2);
         %drawP{i} = line( 'color','g', 'LineStyle','none','LineWidth',1,'Marker','x','MarkerSize',10,'erase','xor','xdata',particles(i).getBotPos(1),'ydata',particles(i).getBotPos(2));
     end
     %h = animatedline('Color','g','LineStyle','none','Marker','x','MaximumNumPoints',num);
@@ -46,8 +50,8 @@ function [botSim] = localiseReal2(botSim,map,target)
     plan=1;
     d=Inf;
     moveRes=5;
-    stepSize=5;
-    reLoc=0;
+    stepSize=10;
+    reLoc=3;
     exploreSteps=2;
     steps=0;
 
@@ -64,22 +68,28 @@ function [botSim] = localiseReal2(botSim,map,target)
         %tic
         n = n+1; %increment the current number of iterations
         scan=[];
-        while isempty(scan)
-            scan = botReal.ultraScan();
-            %display('Scan again');
-        end
-        scanLines=scan(:,1)';
-        botScan=scan(:,2);
-        scanConfig =  cat(1,cos(scanLines), sin(scanLines))'*30;
-        botSim.setScanConfig(scanConfig);   
-        for i = 1:num
-            particles(i).setScanConfig(scanConfig);
+        if REAL
+            while isempty(scan)
+                scan = botReal.ultraScan();
+                %display('Scan again');
+            end
+            scanLines=scan(:,1)';
+            botScan=scan(:,2);
+            scanConfig =  cat(1,cos(scanLines), sin(scanLines))'*30;
+            botSim.setScanConfig(scanConfig);   
+            for i = 1:num
+                particles(i).setScanConfig(scanConfig);
+            end
+            botEstimate.setScanConfig(scanConfig);
+        else
+            botScan = botSim.ultraScan(); %get a scan from the real robot.
         end
         
-        %botScan = botSim.ultraScan(); %get a scan from the real robot.
+        
         [nearest,nidx]=min(botScan);
         %% Write code for updating your particles scans
-        [pose, isPFLdone] = PFL( botScan, particles, isPFLdone );
+        %[pose, isPFLdone] = PFL( botScan, particles, isPFLdone );
+        [pose, isPFLdone] = PFL2( botScan, particles, isPFLdone, botEstimate );
         %pose=[0 0 0];
         %pose
         botEstimate.setBotPos(pose(1:2));
@@ -97,7 +107,7 @@ function [botSim] = localiseReal2(botSim,map,target)
         explore=~isPFLdone;
         
         if gotoTarget && plan
-            %display('Target plan')
+            display('Target plan')
             
             %pose(3)=mod(pose(3),pi);
             %{
@@ -116,8 +126,9 @@ function [botSim] = localiseReal2(botSim,map,target)
             end
             plan=0;
             steps=0;
+            nextPdist=robotCommand(1);
         elseif explore && plan
-            %display('Explore plan')
+            display('Explore plan')
 
             directionNew=pathExplore(knownPoints,beenThere);
 
@@ -128,9 +139,11 @@ function [botSim] = localiseReal2(botSim,map,target)
 
             plan=0;
             steps=0;
+            nextPdist=robotCommand(1);
         else
             %display('Just go')
         end
+            
         %robotCommand
         beenThere(:,1)=[0;0];
         beenThere = circshift(beenThere,1,2);
@@ -147,7 +160,7 @@ function [botSim] = localiseReal2(botSim,map,target)
             botSim.drawScanConfig();
             botEstimate.drawBot(30,'b'); %draw robot with line length 30 and green
             
-            drawParticles=0;
+            
             if drawParticles
                 for i =1:num
                     particles(i).drawBot(3); %draw particle with line length 3 and default color
@@ -189,23 +202,26 @@ function [botSim] = localiseReal2(botSim,map,target)
             
         
 
-        if robotCommand(1)>stepSize
+        if nextPdist>stepSize
             move=stepSize;%robotCommand(1)/moveRes;
         else
-            move=robotCommand(1);
+            move=nextPdist;
             plan=1;
         end
-        if isempty(nearest)
-            botScan
-            nearest=0;
+        
+        nextPdist=nextPdist-move;
+        
+        if nextPdist==0;
+            plan=1;
         end
         nearestNext=nearest-move*cos(scanLines(nidx)+turn);
-        if nearestNext<wallDistlim*0.9
+        if nearestNext<wallDistlim*0.8
             if abs(scanLines(nidx))<0.1
                 turn=0.9*pi;
             else
                 turn=-2*sign(scanLines(nidx))*(pi/2-abs(scanLines(nidx)))+0.05*(rand(1)-0.5)*abs(scanLines(nidx));
             end
+            plan=1;
         end
 
         %turn=commands(1,2);
@@ -224,8 +240,10 @@ function [botSim] = localiseReal2(botSim,map,target)
         %% Move
         botSim.turn(turn); %turn the real robot.  
         botSim.move(move); %move the real robot. These movements are recorded for marking 
-        botReal.turn(turn);
-        botReal.move(move);
+        if REAL
+            botReal.turn(turn);
+            botReal.move(move);
+        end
         for i =1:num %for all the particles. 
             particles(i).turn(turn); %turn the particle in the same way as the real robot
             particles(i).move(move); %move the particle in the same way as the real robot

@@ -42,7 +42,7 @@ function [ output_args ] = runSim( adminKey )
     %if the value is 1 it will run from predefined start and target positions
     %If the number is greater than 1, the first test will be from predefined
     %positions, and the rest will be randomised.
-    numberOfrepeats = 100;
+    numberOfrepeats = 1;
 
     %Predefined start and target positions
     startPositions =  [20,20;30,20;50,70 ]; %These will change
@@ -75,18 +75,19 @@ function [ output_args ] = runSim( adminKey )
                         botSim.randomPose(10); %puts the robot in a random position at least 10cm away from a wall
                         target = botSim.getRndPtInMap(6);  %gets random target
                     end
-                    botSim.drawMap();
-                    botSim.drawBot(3);
-                    plot(target(1),target(2),'*');
-                    hold off;
-                    drawnow;
+                    %botSim.drawMap();
+                    %botSim.drawBot(3);
+                    %plot(target(1),target(2),'*');
+                    %hold off;
+                    %drawnow;
 
                     tic %starts timer
                     %calls your (hopefully finished) localisation function
                     %% stuff
                     
                     %localization
-                    returnedBot = localise(botSim,maps{i},target);
+                    returnedBot = localiseALL(botSim,maps{i},target);
+                    
                     
                     
                     

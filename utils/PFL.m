@@ -12,7 +12,7 @@ function [ pose, isPFLdone ] = PFL( botScan, particles, isPFLdone )
     weights = ones(num, 1) * (1 / num); % initialize weights
 
     for i = 1:num
-        pScan = particles(i).ultraScan(); % get scan for each particle
+        pScan = floor(particles(i).ultraScan()); % get scan for each particle
         delta = sum( abs(pScan - botScan) );
         weights(i) = exp( - delta / (2 * sigma.^2) ) + dampling;
     end
