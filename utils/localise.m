@@ -20,7 +20,7 @@ function [botSim] = goToTarget(botSim,map,target)
 
 
     % generate some random particles inside the map
-    num = 400; % number of particles
+    num = 100; % number of particles
     particles(num,1) = BotSim; %how to set up a vector of objects
     isPFLdone = 0;
     botEstimate = BotSim(map);  %sets up botSim object with adminKey
@@ -66,8 +66,8 @@ function [botSim] = goToTarget(botSim,map,target)
         botScan = botSim.ultraScan(); %get a scan from the real robot.
         [nearest,nidx]=min(botScan);
         %% Write code for updating your particles scans
-        %[pose, isPFLdone] = PFL( botScan, particles, isPFLdone );
-        [pose, isPFLdone] = PFL2( botScan, particles, isPFLdone, botEstimate );
+        [pose, isPFLdone] = PFL( botScan, particles, isPFLdone );
+        %[pose, isPFLdone] = PFL2( botScan, particles, isPFLdone, botEstimate );
         %pose=[0 0 0];
         %pose
         botEstimate.setBotPos(pose(1:2));
@@ -138,7 +138,7 @@ function [botSim] = goToTarget(botSim,map,target)
             botSim.drawScanConfig();
             botEstimate.drawBot(30,'b'); %draw robot with line length 30 and green
             
-            drawParticles=0;
+            drawParticles=1;
             if drawParticles
                 for i =1:num
                     particles(i).drawBot(3); %draw particle with line length 3 and default color
