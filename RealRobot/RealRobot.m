@@ -10,6 +10,7 @@ classdef RealRobot < handle
         mSensorPower
         sensorRays
         sensRange
+        sensC
         
         R
         w
@@ -41,6 +42,7 @@ classdef RealRobot < handle
             
             obj.sensorRays=20;
             obj.sensRange=75;
+            obj.sensC=4.5;
         end
         
         
@@ -183,12 +185,18 @@ classdef RealRobot < handle
 
             distThreshold=2;
             dscan=[scanRaw(1:end-1,1) diff(scanRaw(:,2))];
-            jPoints=[1;find(abs(dscan(:,2))>distThreshold);size(scanRaw,1)];
+            jPoints=find(abs(dscan(:,2))>distThreshold);
+            if jPoints(1)~=1
+                jPoints=[1;jPoints];
+            end
+            if jPoints(end)~=size(scanRaw,1)
+                jPoints=[jPoints;size(scanRaw,1)];
+            end
             padding=1;
             numThreshold=5;
             angleThreshold=15;
             n=1;
-
+            
             for i=1:length(jPoints)-1
                 scanRange=scanRaw(jPoints(i)+padding:jPoints(i+1)-padding,:);
                 %if size(scanRange,1)>numThreshold
@@ -235,7 +243,9 @@ classdef RealRobot < handle
                 grid on
                 axis([-pi/2 pi/2 -10 100]);
             end
-
+            
+            
+            scan(:,3)=sqrt(scan(:,3).^2+obj.sensC^2-2*scan(:,3)*obj.sensC*cos(pi-scan(:,1)));
 
         end
         

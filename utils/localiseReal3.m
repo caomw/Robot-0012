@@ -1,13 +1,14 @@
-function [botSim] = localise(botSim,map,target)
+function [botSim] = localiseReal3(botSim,map,target)
 %This function returns botSim, and accepts, botSim, a map and a target.
 %LOCALISE Template localisation function
 
     %% setup code
     %you can modify the map to take account of your robots configuration space
-    wallDistlim=6;
+    wallDistlim=10;
     modifiedMap = MapBorder2(map, wallDistlim); 
     botSim.setMap(map);
     botDummy=BotSim(modifiedMap);
+    botReal=RealRobot();
 
     %% Scan configuration: 180 degrees vision
     startAngle =-pi/2;
@@ -20,7 +21,7 @@ function [botSim] = localise(botSim,map,target)
 
 
     % generate some random particles inside the map
-    num = 100; % number of particles
+    num = 400; % number of particles
     particles(num,1) = BotSim; %how to set up a vector of objects
     isPFLdone = 0;
     botEstimate = BotSim(map);  %sets up botSim object with adminKey
@@ -63,7 +64,20 @@ function [botSim] = localise(botSim,map,target)
     while(~done) %%particle filter loop
         %tic
         n = n+1; %increment the current number of iterations
-        botScan = botSim.ultraScan(); %get a scan from the real robot.
+        scan=[];
+        while isempty(scan)
+            scan = botReal.ultraScan();
+            %display('Scan again');
+        end
+        scanLines=scan(:,1)';
+        botScan=scan(:,2);
+        scanConfig =  cat(1,cos(scanLines), sin(scanLines))'*30;
+        botSim.setScanConfig(scanConfig);   
+        for i = 1:num
+            particles(i).setScanConfig(scanConfig);
+        end
+        
+        %botScan = botSim.ultraScan(); %get a scan from the real robot.
         [nearest,nidx]=min(botScan);
         %% Write code for updating your particles scans
         [pose, isPFLdone] = PFL( botScan, particles, isPFLdone );
@@ -214,6 +228,8 @@ function [botSim] = localise(botSim,map,target)
         %% Move
         botSim.turn(turn); %turn the real robot.  
         botSim.move(move); %move the real robot. These movements are recorded for marking 
+        botReal.turn(turn);
+        botReal.move(move);
         for i =1:num %for all the particles. 
             particles(i).turn(turn); %turn the particle in the same way as the real robot
             particles(i).move(move); %move the particle in the same way as the real robot
