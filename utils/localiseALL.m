@@ -1,8 +1,8 @@
 function [botSim] = localiseALL(botSim,map,target)
 %This function returns botSim, and accepts, botSim, a map and a target.
 %LOCALISE Template localisation function
-    REAL=false;
-    drawParticles=false;
+    REAL=true;
+    drawParticles=true;
     %% setup code
     %you can modify the map to take account of your robots configuration space
     wallDistlim=10;
@@ -24,7 +24,7 @@ function [botSim] = localiseALL(botSim,map,target)
 
 
     % generate some random particles inside the map
-    num = 400; % number of particles
+    num = 200; % number of particles
     particles(num,1) = BotSim; %how to set up a vector of objects
     isPFLdone = 0;
     botEstimate = BotSim(map);  %sets up botSim object with adminKey
@@ -39,7 +39,7 @@ function [botSim] = localiseALL(botSim,map,target)
         % set noise for particles
         particles(i).setMotionNoise(1);
         particles(i).setTurningNoise(0.1);
-        
+        particles(i).setSensorNoise(2);
         %drawP{i} = line( 'color','g', 'LineStyle','none','LineWidth',1,'Marker','x','MarkerSize',10,'erase','xor','xdata',particles(i).getBotPos(1),'ydata',particles(i).getBotPos(2));
     end
     %h = animatedline('Color','g','LineStyle','none','Marker','x','MaximumNumPoints',num);
@@ -50,7 +50,7 @@ function [botSim] = localiseALL(botSim,map,target)
     plan=1;
     d=Inf;
     moveRes=5;
-    stepSize=5;
+    stepSize=10;
     reLoc=3;
     exploreSteps=2;
     steps=0;
@@ -80,6 +80,7 @@ function [botSim] = localiseALL(botSim,map,target)
             for i = 1:num
                 particles(i).setScanConfig(scanConfig);
             end
+            botEstimate.setScanConfig(scanConfig);
         else
             botScan = botSim.ultraScan(); %get a scan from the real robot.
         end
@@ -87,8 +88,8 @@ function [botSim] = localiseALL(botSim,map,target)
         
         [nearest,nidx]=min(botScan);
         %% Write code for updating your particles scans
-        [pose, isPFLdone] = PFL( botScan, particles, isPFLdone );
-        %[pose, isPFLdone] = PFL2( botScan, particles, isPFLdone, botEstimate );
+        %[pose, isPFLdone] = PFL( botScan, particles, isPFLdone );
+        [pose, isPFLdone] = PFL2( botScan, particles, isPFLdone, botEstimate );
         %pose=[0 0 0];
         %pose
         botEstimate.setBotPos(pose(1:2));
@@ -106,7 +107,7 @@ function [botSim] = localiseALL(botSim,map,target)
         explore=~isPFLdone;
         
         if gotoTarget && plan
-            %display('Target plan')
+            display('Target plan')
             
             %pose(3)=mod(pose(3),pi);
             %{
@@ -127,11 +128,11 @@ function [botSim] = localiseALL(botSim,map,target)
             steps=0;
             nextPdist=robotCommand(1);
         elseif explore && plan
-            %display('Explore plan')
+            display('Explore plan')
 
             directionNew=pathExplore(knownPoints,beenThere);
 
-            e=0.3;
+            e=0.1;
             robotCommand(2)=e*directionNew;
             %direction=directionNew;
             robotCommand(1)=stepSize;
@@ -207,8 +208,12 @@ function [botSim] = localiseALL(botSim,map,target)
             move=nextPdist;
             plan=1;
         end
+        
         nextPdist=nextPdist-move;
         
+        if nextPdist==0;
+            plan=1;
+        end
         nearestNext=nearest-move*cos(scanLines(nidx)+turn);
         if nearestNext<wallDistlim*0.8
             if abs(scanLines(nidx))<0.1
@@ -216,7 +221,7 @@ function [botSim] = localiseALL(botSim,map,target)
             else
                 turn=-2*sign(scanLines(nidx))*(pi/2-abs(scanLines(nidx)))+0.05*(rand(1)-0.5)*abs(scanLines(nidx));
             end
-            plan=0;
+            plan=1;
         end
 
         %turn=commands(1,2);
@@ -255,7 +260,7 @@ function [botSim] = localiseALL(botSim,map,target)
             done=1;
         end
         
-        if (distance(pose(1:2),target)<dlim && isPFLdone) || toc>100
+        if (distance(pose(1:2),target)<dlim && isPFLdone) || toc>1000
             done=1;
         end
         

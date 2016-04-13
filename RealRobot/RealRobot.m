@@ -41,7 +41,7 @@ classdef RealRobot < handle
             obj.mSensor= NXTMotor('C', 'Power', obj.mSensorPower,'SpeedRegulation',true,'TachoLimit',0,'ActionAtTachoLimit','Brake','SmoothStart',false);
             
             obj.sensorRays=20;
-            obj.sensRange=75;
+            obj.sensRange=80;
             obj.sensC=4.5;
         end
         
@@ -113,15 +113,20 @@ classdef RealRobot < handle
         end
         
         function sendMotorCommand(obj,theta,wait)
+            
             for i=1:2
-                obj.motor(i).Power=sign(theta(i))* obj.motorPow;
-                obj.motor(i).TachoLimit=round(abs(theta(1)));
-                obj.motor(i).SendToNXT(); 
+                if round(abs(theta(i)))~=0
+                    obj.motor(i).Stop('off');
+                    obj.motor(i).Power=sign(theta(i))* obj.motorPow;
+                    obj.motor(i).TachoLimit=round(abs(theta(i)));
+                    obj.motor(i).SendToNXT(); 
+                end
             end
             
             if wait
                 for i=1:2
                     obj.motor(i).WaitFor();
+                    obj.motor(i).Stop('off');
                 end
             end
             
@@ -186,29 +191,40 @@ classdef RealRobot < handle
             distThreshold=2;
             dscan=[scanRaw(1:end-1,1) diff(scanRaw(:,2))];
             jPoints=find(abs(dscan(:,2))>distThreshold);
-            if jPoints(1)~=1
-                jPoints=[1;jPoints];
+            if ~isempty(jPoints)
+                if jPoints(1)~=1
+                    jPoints=[1;jPoints];
+                end
+                if jPoints(end)~=size(scanRaw,1)
+                    jPoints=[jPoints;size(scanRaw,1)];
+                end
+            else
+                jPoints=[1;size(scanRaw,1)];
             end
-            if jPoints(end)~=size(scanRaw,1)
-                jPoints=[jPoints;size(scanRaw,1)];
-            end
+                
             padding=1;
             numThreshold=5;
             angleThreshold=15;
             n=1;
-            
+            points={};
             for i=1:length(jPoints)-1
                 scanRange=scanRaw(jPoints(i)+padding:jPoints(i+1)-padding,:);
                 %if size(scanRange,1)>numThreshold
-                if abs(abs(scanRaw(jPoints(i)+padding,1))-abs(scanRaw(jPoints(i+1)-padding,1)))>angleThreshold
-                    points{n}=scanRange;%[scanRaw(jPoints(i:i+1),:)];
-                    n=n+1;
+                if size(scanRange,1)>2
+                    %if abs(abs(scanRaw(jPoints(i)+padding,1))-abs(scanRaw(jPoints(i+1)-padding,1)))>angleThreshold
+                    if abs(scanRaw(jPoints(i+1)-padding,1)-scanRaw(jPoints(i)+padding,1))>angleThreshold
+                        points{n}=scanRange;%[scanRaw(jPoints(i:i+1),:)];
+                        n=n+1;
+                    end
                 end
             end
-
-
+            if isempty(points)
+                points{1}=1;
+            end
+            
             scan=[];
             for i=1:length(points)
+                %points{i}
                 x=points{i}([1 round(size(points{i},1)/2) end],1);
                 y=points{i}([1 round(size(points{i},1)/2) end],2);
                 p = polyfit(x,y,2);
@@ -245,7 +261,7 @@ classdef RealRobot < handle
             end
             
             
-            scan(:,3)=sqrt(scan(:,3).^2+obj.sensC^2-2*scan(:,3)*obj.sensC*cos(pi-scan(:,1)));
+            scan(:,3)=sqrt((scan(:,3)+2).^2+obj.sensC^2-2*scan(:,3)*obj.sensC.*cos(pi-scan(:,1)));
 
         end
         

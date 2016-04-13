@@ -1,6 +1,6 @@
-function condData(data,plotE)
+function scan=condData(data,plotE)
 
-    data=csvread(['scanresult_' num2str(plotE) '.txt']);
+    %data=csvread(['scanresult_' num2str(plotE) '.txt']);
     angles=data(:,1);
     dist=data(:,2);
 

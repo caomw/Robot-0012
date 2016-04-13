@@ -73,7 +73,7 @@ end
 
 %% return
 pose = [position, angle];
-if isPFLdone == 0 && sumeig < 10
+if isPFLdone == 0 && sumeig < 40
     isPFLdone = 1;
 end
 
