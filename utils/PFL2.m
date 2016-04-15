@@ -68,7 +68,7 @@ end
 if isPFLdone == 0
     covmat = cov(newPos);
     eigval = eig(covmat);
-    sumeig = sum(eigval) % threshold: 30(num=500)
+    sumeig = sum(eigval); % threshold: 30(num=500)
 end
 
 %% return
@@ -83,7 +83,7 @@ if isPFLdone == 1
     botEstimate.setBotPos(position);
     botEstimate.setBotAng(angle);
     scan = botEstimate.ultraScan();
-    delta = sum( abs(scan - botScan) )
+    delta = sum( abs(scan - botScan) );
     if delta > threshold % means the estimate is wrong
         isPFLdone = 0;
         % particles will be repositioned randomly

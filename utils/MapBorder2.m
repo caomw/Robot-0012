@@ -13,6 +13,21 @@ function [ NewMap ] = MapBorder2( Map,normalsize )
     
     TempMap = zeros(size(Map, 1),4);
     NewMap = zeros(size(Map));
+    angle=0;
+    for idx = 1:size(Map)
+        if idx == size(Map, 1)-1
+            A = [Map(idx, 1),Map(idx, 2), 0]; B = [Map(idx+1, 1),Map(idx+1, 2), 0];C = [Map(1, 1),Map(1, 2), 0];
+        elseif idx == size(Map, 1)
+            A = [Map(idx, 1),Map(idx, 2), 0]; B = [Map(1, 1),Map(1, 2), 0];C = [Map(2, 1),Map(2, 2), 0];
+        else
+            A = [Map(idx, 1),Map(idx, 2), 0]; B = [Map(idx+1, 1),Map(idx+1, 2), 0];C = [Map(idx+2, 1),Map(idx+2, 2), 0];
+        end
+        v1=B-A;
+        v2=C-B;
+         x=cross(v1,v2);
+         angle =angle+atan2(sign(x(end))*norm(x),dot(v1,v2));
+    end
+    
     for idx = 1:size(Map)
         %verify if it's the last point
         if idx == size(Map, 1)
@@ -23,17 +38,17 @@ function [ NewMap ] = MapBorder2( Map,normalsize )
         
         x = [A(1);B(1)];
         y = [A(2);B(2)];
-        normal = [mean(x),mean(y)] + normalsize*null(A-B)';
-        A2=A+normalsize*null(A-B)';
-        B2=B+normalsize*null(A-B)';
-        %verify the normal is inside the map
-        %if ~botSim.pointInsideMap([normal(1) normal(2)])
-        if ~inpolygon(normal(1),normal(2),Map(:,1),Map(:,2))
-            %normal = [mean(x),mean(y)] - normalsize*null(A-B)';
-            A2=A-normalsize*null(A-B)';
-            B2=B-normalsize*null(A-B)';
-        end
-        %p=polyfit([A2(1) B2(1)],[A2(2) B2(2)],1);
+        %normal = normalsize*null(A-B)';
+        dirV=(B-A)'/norm(A-B);
+        normal=sign(angle)*[-dirV(2) dirV(1)];
+        midP = [mean(x),mean(y)] + normal;
+        A2=A+normalsize*normal;
+        B2=B+normalsize*normal;
+        
+        %if ~inpolygon(midP(1),midP(2),Map(:,1),Map(:,2))
+        %    A2=A-normalsize*null(A-B)';
+        %    B2=B-normalsize*null(A-B)';
+        %end
 
         TempMap(idx,:)=[A2 B2];
 

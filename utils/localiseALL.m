@@ -107,7 +107,7 @@ function [botSim] = localiseALL(botSim,map,target)
         explore=~isPFLdone;
         
         if gotoTarget && plan
-            display('Target plan')
+            %display('Target plan')
             stepSize=10;
             commands=pathPlan(pose,target,modifiedMap, map);
             if ~isempty(commands)
@@ -123,7 +123,7 @@ function [botSim] = localiseALL(botSim,map,target)
             nextPdist=robotCommand(1);
             
         elseif explore && plan
-            display('Explore plan')
+            %display('Explore plan')
             stepSize=5;
             directionNew=pathExplore(knownPoints,beenThere);
 
@@ -256,7 +256,7 @@ function [botSim] = localiseALL(botSim,map,target)
             done=1;
         end
         
-        if (distance(pose(1:2),target)<dlim && isPFLdone) || toc>1000
+        if (distance(pose(1:2),target)<dlim && isPFLdone) || toc>100
             done=1;
         end
         
