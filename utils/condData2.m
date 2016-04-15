@@ -50,10 +50,10 @@ function scan=condData2(data,plotE)
         idx=find(points{i}(:,2)==m);
         
         if length(idx)<=thresholdN
-            points{i}(idx,2)=1000;%NaN(length(idx),2)
+            points{i}(idx,2)=NaN;%NaN(length(idx),2)
             %i=i-1;
         else
-            if idx(1)~=1 && idx(end)~=length(points{i}(:,2)) && length(idx)>thresholdN
+            if idx(1)~=1 && idx(end)~=length(points{i}(:,2))% && length(idx)>thresholdN
                 d=m;
                 alpha=meanangle(points{i}(idx,1));
                 betas=(points{i}(:,1));
@@ -64,6 +64,9 @@ function scan=condData2(data,plotE)
                 %lines(n).d=m;
                 %lines(n).n=[cos(pi/2+alpha);sin(pi/2+alpha)];
                 %lines(n).p=[-sin(pi/2+alpha);cos(pi/2+alpha)];
+            else
+                points{i}(:,3)=points{i}(:,2);
+                scan=[scan;points{i}];
             end
             i=i+1;
         end

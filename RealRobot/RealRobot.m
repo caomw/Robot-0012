@@ -40,7 +40,7 @@ classdef RealRobot < handle
             obj.mSensorPower=10;
             obj.mSensor= NXTMotor('C', 'Power', obj.mSensorPower,'SpeedRegulation',true,'TachoLimit',0,'ActionAtTachoLimit','Brake','SmoothStart',false);
             
-            obj.sensorRays=20;
+            obj.sensorRays=10;
             obj.sensRange=80;
             obj.sensC=4.5;
         end
@@ -107,8 +107,9 @@ classdef RealRobot < handle
             obj.turnSensor(0,1,90); 
             %NXT_PlayTone(500, 100);
             
-            scan=obj.condDataR(angles,dist);
-            
+            %scan0=obj.condDataR2(angles,dist);
+            scan0=obj.condDataR(angles,dist);
+            scan=scan0(:,[1 3]);
             
         end
         
@@ -264,6 +265,128 @@ classdef RealRobot < handle
             scan(:,3)=sqrt((scan(:,3)+2).^2+obj.sensC^2-2*scan(:,3)*obj.sensC.*cos(pi-scan(:,1)));
 
         end
+        
+        function scan=condDataR2(obj,angles,dist,p)
+            
+            angles=angles(dist~=255);
+            dist=dist(dist~=255);
+
+            u=unique(angles);
+            n=histc(angles,u);
+            multiples=u(n>1);
+            for i=1:numel(multiples)
+                mask=angles==multiples(i);
+                idx=find(mask);
+                distM=mean(dist(mask));
+                dist=dist(~mask);
+                angles=angles(~mask);
+                angles=[angles(1:idx(1)-1);multiples(i);angles(idx(1):end)];
+                dist=[dist(1:idx(1)-1);distM;dist(idx(1):end)];
+            end
+
+            scanRaw=[angles(dist~=-1) dist(dist~=-1)];
+            scanRaw(:,1)=deg2rad(scanRaw(:,1));
+
+            distThreshold=1;
+            dscan=[scanRaw(1:end-1,1) diff(scanRaw(:,2))];
+            jPoints=find(abs(dscan(:,2))>distThreshold);
+            if ~isempty(jPoints)
+                if jPoints(1)~=1
+                    jPoints=[1;jPoints];
+                end
+                if jPoints(end)~=size(scanRaw,1)
+                    jPoints=[jPoints;size(scanRaw,1)];
+                end
+            else
+                jPoints=[1;size(scanRaw,1)];
+            end
+                
+            padding=1;
+            numThreshold=5;
+            angleThreshold=deg2rad(15);
+            n=1;
+            points={};
+            for i=1:length(jPoints)-1
+                scanRange=scanRaw(jPoints(i)+padding:jPoints(i+1)-padding,:);
+                %if size(scanRange,1)>numThreshold
+                if size(scanRange,1)>2
+                    %if abs(abs(scanRaw(jPoints(i)+padding,1))-abs(scanRaw(jPoints(i+1)-padding,1)))>angleThreshold
+                    if abs(scanRaw(jPoints(i+1)-padding,1)-scanRaw(jPoints(i)+padding,1))>angleThreshold
+                        points{n}=scanRange;%[scanRaw(jPoints(i:i+1),:)];
+                        n=n+1;
+                    end
+                end
+            end
+            if isempty(points)
+                points{1}=1;
+            end
+            
+            scan=[];
+            lines=[];
+            n=1;
+            thresholdN=5;
+            i=1;
+            pointsTemp=points;
+            while i<=length(points)
+                m=min(pointsTemp{i}(:,2));
+                idx=find(pointsTemp{i}(:,2)==m);
+
+                if length(idx)<=thresholdN
+                    pointsTemp{i}(idx,2)=NaN;%NaN(length(idx),2)
+                    %i=i-1;
+                    if isempty(idx)
+                        i=i+1;
+                    end
+                else
+                    if idx(1)~=1 && idx(end)~=length(pointsTemp{i}(:,2))% && length(idx)>thresholdN
+                        d=m;
+                        alpha=meanangle(pointsTemp{i}(idx,1));
+                        betas=(pointsTemp{i}(:,1));
+                        linePoints=d./cos(abs(alpha-betas));
+                        points{i}(:,3)=linePoints;
+                        scan=[scan;points{i}];
+                    else
+                        points{i}(:,3)=points{i}(:,2);
+                        scan=[scan;points{i}];
+                    end
+                    i=i+1;
+                end
+                %i
+            end
+
+
+
+            %obj.sensorRays=20;
+            scanSteps=round(size(scanRaw,1)/obj.sensorRays);
+            scanSteps=1;
+            scan=scan(1:scanSteps:end,:);
+            %scan(:,1)=deg2rad(scan(:,1));
+
+            %scan(:,2)
+            %fitted=fitting2(scan(:,2));
+
+            if nargin>3
+                %dlmwrite(['scanresult_' num2str(num) '.txt'],scanRaw)
+                figure
+                plot(deg2rad(scanRaw(:,1)),scanRaw(:,2),'.')
+                hold on
+                plot(scan(:,1),scan(:,3),'.')
+                %plot(scan(:,1),fitted(:),'x')
+                %plot(dscan(:,1),dscan(:,2),'.')
+                for i=1:length(jPoints)
+                    %scanRaw(jPoints(i),1)
+                    plot(deg2rad([scanRaw(jPoints(i),1) scanRaw(jPoints(i),1)]),[-10 100],'k--')
+                end
+                hold off
+                grid on
+                axis([-pi/2 pi/2 -10 100]);
+            end
+            
+            scan
+            scan(:,3)=sqrt((scan(:,3)+2).^2+obj.sensC^2-2*scan(:,3)*obj.sensC.*cos(pi-scan(:,1)));
+
+        end
+        
         
     end
     

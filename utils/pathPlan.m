@@ -2,7 +2,7 @@ function [commands] = pathPlan(startPose,target,map, originalMap)
 %Worst pathplanning function ever.  Assumes there are no obstacles and
 %generates random movment instructions
 
-    graph=Graph(startPose(1:2),target,map, originalMap);
+    graph=Graph2(startPose(1:2),target,map, originalMap);
     path=graph.findPath();
     if size(path)
         commands=zeros(numel(path),2);
@@ -10,7 +10,7 @@ function [commands] = pathPlan(startPose,target,map, originalMap)
         coords2=path(2).coordinates;
         commands(1,1)=distance(coords1,coords2);
         angle=atan2(coords2(2)-coords1(2),coords2(1)-coords1(1));
-        commands(1,2)=angle-startPose(3);
+        commands(1,2)=dAngle(angle,startPose(3));
         %{
         for i=2:numel(path)-1
             coords1=path(i).coordinates;

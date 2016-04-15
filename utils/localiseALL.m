@@ -1,11 +1,11 @@
 function [botSim] = localiseALL(botSim,map,target)
 %This function returns botSim, and accepts, botSim, a map and a target.
 %LOCALISE Template localisation function
-    REAL=true;
-    drawParticles=true;
+    REAL=false;
+    drawParticles=false;
     %% setup code
     %you can modify the map to take account of your robots configuration space
-    wallDistlim=10;
+    wallDistlim=15;
     modifiedMap = MapBorder2(map, wallDistlim); 
     botSim.setMap(map);
     botDummy=BotSim(modifiedMap);
@@ -24,7 +24,7 @@ function [botSim] = localiseALL(botSim,map,target)
 
 
     % generate some random particles inside the map
-    num = 200; % number of particles
+    num = 400; % number of particles
     particles(num,1) = BotSim; %how to set up a vector of objects
     isPFLdone = 0;
     botEstimate = BotSim(map);  %sets up botSim object with adminKey
@@ -50,7 +50,7 @@ function [botSim] = localiseALL(botSim,map,target)
     plan=1;
     d=Inf;
     moveRes=5;
-    stepSize=10;
+    stepSize=5;
     reLoc=3;
     exploreSteps=2;
     steps=0;
@@ -62,7 +62,7 @@ function [botSim] = localiseALL(botSim,map,target)
     unitV=[0;1];
     direction=0;
     robotCommand=zeros(1,2);
-    dlim=2;
+    dlim=5;
     done=0;
     while(~done) %%particle filter loop
         %tic
@@ -108,13 +108,7 @@ function [botSim] = localiseALL(botSim,map,target)
         
         if gotoTarget && plan
             display('Target plan')
-            
-            %pose(3)=mod(pose(3),pi);
-            %{
-            while pose(3)>2*pi
-                pose(3)=pose(3)-2*pi;
-            end
-            %}
+            stepSize=10;
             commands=pathPlan(pose,target,modifiedMap, map);
             if ~isempty(commands)
                 robotCommand=commands(1,:);
@@ -127,9 +121,10 @@ function [botSim] = localiseALL(botSim,map,target)
             plan=0;
             steps=0;
             nextPdist=robotCommand(1);
+            
         elseif explore && plan
             display('Explore plan')
-
+            stepSize=5;
             directionNew=pathExplore(knownPoints,beenThere);
 
             e=0.1;
@@ -140,6 +135,7 @@ function [botSim] = localiseALL(botSim,map,target)
             plan=0;
             steps=0;
             nextPdist=robotCommand(1);
+            
         else
             %display('Just go')
         end
@@ -215,7 +211,7 @@ function [botSim] = localiseALL(botSim,map,target)
             plan=1;
         end
         nearestNext=nearest-move*cos(scanLines(nidx)+turn);
-        if nearestNext<wallDistlim*0.8
+        if nearestNext<wallDistlim*1.25
             if abs(scanLines(nidx))<0.1
                 turn=0.9*pi;
             else

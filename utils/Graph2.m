@@ -18,7 +18,7 @@ classdef Graph2 < handle
         
     end
     methods
-        function obj=Graph(start,target,map, originalMap)
+        function obj=Graph2(start,target,map, originalMap)
             obj.map=map;
             obj.originalMap = originalMap;
             obj.mapSize=size(map,1);

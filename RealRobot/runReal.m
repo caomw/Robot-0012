@@ -80,7 +80,7 @@ function [ output_args ] = runReal( adminKey )
                         target = targetPositions(i,:);
                     else
                         botSim.randomPose(10); %puts the robot in a random position at least 10cm away from a wall
-                        target = botSim.getRndPtInMap(10)  %gets random target
+                        target = botSim.getRndPtInMap(15)  %gets random target
                     end
                     botSim.drawMap();
                     botSim.drawBot(3);
