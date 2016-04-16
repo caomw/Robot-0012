@@ -123,8 +123,8 @@ function [botSim] = localiseALL(botSim,map,target)
                 %robotCommand(1)=4;
             end
             
-            
-        elseif explore && plan
+        end    
+        if explore && plan
             display('Explore plan')
             stepSize=5;
             directionNew=pathExplore(knownPoints,beenThere);

@@ -389,7 +389,7 @@ classdef RealRobot < handle
                 axis([-pi/2 pi/2 -10 100]);
             end
             
-            scan
+            %scan
             scan(:,3)=sqrt((scan(:,3)+2).^2+obj.sensC^2-2*scan(:,3)*obj.sensC.*cos(pi-scan(:,1)));
 
         end
