@@ -45,6 +45,13 @@ classdef RealRobot < handle
             obj.sensC=4.5;
         end
         
+        function victory(obj)
+            
+            NXT_PlayTone(1000, 120);
+            pause(0.5);
+            NXT_PlayTone(1000, 120);
+        end
+        
         
         function move(obj,dist)
             theta=obj.moveTo(dist);

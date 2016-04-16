@@ -21,6 +21,6 @@ function [commands] = pathPlan(startPose,target,map, originalMap)
         end
         %}
     else
-        commands=[0 0];
+        commands=[];
     end
 end

@@ -46,7 +46,7 @@ function [ output_args ] = runSim( adminKey )
 
     %Predefined start and target positions
     startPositions =  [20,20;30,20;50,70 ]; %These will change
-    targetPositions = [80,80;100,20;230,70]; %These will change
+    targetPositions = [80,80;200,40;230,70]; %These will change
 
     %adminKey =1;% rand(1); %During marking another key will be used ;)
 
@@ -73,7 +73,7 @@ function [ output_args ] = runSim( adminKey )
                         target = targetPositions(i,:);
                     else
                         botSim.randomPose(10); %puts the robot in a random position at least 10cm away from a wall
-                        target = botSim.getRndPtInMap(6);  %gets random target
+                        target = botSim.getRndPtInMap(15);  %gets random target
                     end
                     %botSim.drawMap();
                     %botSim.drawBot(3);

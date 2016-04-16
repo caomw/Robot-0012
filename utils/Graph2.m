@@ -167,7 +167,7 @@ classdef Graph2 < handle
                     else
                         current.G_cost = current.G_cost + distance(current.coordinates, obj.vertices(current.neighbours).coordinates);
                         current.F_cost = obj.vertices(current.neighbours).G_cost + distance(obj.vertices(current.neighbours).coordinates, obj.vertices(obj.targetID).coordinates);
-                        pathVert=[current obj.vertices(current.neighbours)];                           
+                        pathVert=[];                           
                     end
 
                 end  
