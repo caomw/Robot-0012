@@ -28,21 +28,10 @@ classdef Graph2 < handle
             obj.startID=obj.n-1;
             obj.vertices=Vertex.empty(obj.n,0);
             %obj.vertices=cell(obj.n);
-            n=1;
-            startAdded=0;
-            for i=1:obj.n-2
-                if(distance(start,map(i,:)) < 5)
-                    %obj.vertices(i)=Vertex(start,-1,obj.startID);
-                    display('is pretty close move next')
-                    startAdded=i;
-                else
-                    obj.vertices(n)=Vertex(map(i,:),i,i);
-                    n=n+1;
-                end
+            for i=obj.n-2:-1:1
+                obj.vertices(i)=Vertex(map(i,:),i,i);
             end
-            if startAdded~=0;
-                obj.vertices(end+1)=Vertex(map(i,:),-1,obj.startID);
-            end
+            obj.vertices(end+1)=Vertex(start,-1,obj.startID);
             obj.vertices(end+1)=Vertex(target,0,obj.targetID);
             
             
@@ -51,15 +40,12 @@ classdef Graph2 < handle
             obj.validEdges=Edge.empty();
             %obj.edges(obj.maxEdges,1)=Edge;
             k=0;
-            for i=1:length(obj.vertices)
-                for j=(i+1):length(obj.vertices)
+            for i=1:obj.n
+                for j=(i+1):obj.n
                     k=k+1;
                     obj.edges(k)=Edge(obj.vertices(i),obj.vertices(j),obj.map);
                 end
             end
-            
-            
-            
             
         end
         
@@ -149,7 +135,7 @@ classdef Graph2 < handle
                 if inpolygon(obj.vertices(obj.startID).coordinates(:,1),obj.vertices(obj.startID).coordinates(:,2),obj.map(:,1),obj.map(:,2))
                     %display('I am inside BORDER map and ORIGINAL map I should keep working\n')
                     pathVert=[];
-                else
+                else 
                     %display('Finding path...')
                     closest = [Inf 0];
                     for i=1:size(obj.map)
@@ -159,30 +145,31 @@ classdef Graph2 < handle
                             closest(2) = i;
                         end
                     end
-                    %ADDED LINE TO CHECK IF THE POINT IS PRETTY CLOSE THE
-                    %TARGET POINT.
-                    %IN CASE IS PRETTY CLOSE MOVE TO THE NEXT ONE
-                    %{
                     current.neighbours = closest(2);
                     if(distance(current.coordinates, obj.vertices(current.neighbours).coordinates) < 5)
-                        display('is pretty close move next')
-                        skip = closest(2);
-                        for i=1:size(obj.map)
-                            if(i ~= skip)
-                                dist = distance(current.coordinates, obj.map(i,:));
-                                if (closest(1) > dist)    
-                                    closest(1) = dist;
-                                    closest(2) = i;
-                                end
+                        %display('is pretty close move next')
+                        newNeighbours = obj.vertices(current.neighbours).neighbours;
+                        closest(1) = Inf;
+                        closest(2) = 1;
+                        for i=1:numel(newNeighbours)
+                            %closest neighbour to the final target
+
+                            F_cost = distance(obj.vertices(newNeighbours(i)).coordinates, obj.vertices(obj.targetID).coordinates);
+                            
+                            if closest(1) > F_cost
+                                closest(1) = F_cost;
+                                closest(2) = i;
                             end
                         end
+                        current.G_cost = current.G_cost + distance(current.coordinates, obj.vertices(newNeighbours(closest(2))).coordinates);
+                        current.F_cost = obj.vertices(newNeighbours(closest(2))).G_cost + distance(obj.vertices(newNeighbours(closest(2))).coordinates, obj.vertices(obj.targetID).coordinates);
+                        pathVert=[current obj.vertices(newNeighbours(closest(2)))];
+                    else
+                        current.G_cost = current.G_cost + distance(current.coordinates, obj.vertices(current.neighbours).coordinates);
+                        current.F_cost = obj.vertices(current.neighbours).G_cost + distance(obj.vertices(current.neighbours).coordinates, obj.vertices(obj.targetID).coordinates);
+                        pathVert=[current obj.vertices(current.neighbours)];                           
                     end
-                    %}
-                    %END WORKAROUND
-                    current.neighbours = closest(2);
-                    current.G_cost = current.G_cost + distance(current.coordinates, obj.vertices(current.neighbours).coordinates);
-                    current.F_cost = obj.vertices(current.neighbours).G_cost + distance(obj.vertices(current.neighbours).coordinates, obj.vertices(obj.targetID).coordinates);
-                    pathVert=[current obj.vertices(current.neighbours)];
+
                 end  
             else
                 if inpolygon(obj.vertices(obj.startID).coordinates(:,1),obj.vertices(obj.startID).coordinates(:,2),obj.map(:,1),obj.map(:,2))
