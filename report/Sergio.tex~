@@ -1,9 +1,21 @@
+<<<<<<< HEAD
+\section{Robot Design}
+
+During the first stage of the design one beta version using caterpillar wheels and the sensor on the top to turn 360$^\circ$ was created finding some disadvantages that were solved in the last version.
+=======
+\documentclass[12pt]{article}
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage{subcaption}
+
+\graphicspath{ {fig/} }
+\begin{document}
 \section{Robot Design}
 
 During the design and assembly stage, two models where proposed. The first prototype used caterpillar wheels, robust body and a sensor on the top with 360$^{\circ}$ of freedom. The second and current model,conversely, is lighter with the sensor suited at the bottom with 180$^{\circ}$ of freedom. It presents the following advantages: 
 
 1) Lightweight. The main robot pieces are the motors, these parts are used as frame to support the body and the NXT control.
-
+>>>>>>> origin/master
 
 2) Compact. The first prototype had a long body because the NXT control was in a horizontal position. This design presented two main problems, difficulties to turn and a considerable error range while rotating. In order to remove these issues the NXT control was placed in vertical position secured by few pieces to the motors.
 
@@ -11,7 +23,9 @@ During the design and assembly stage, two models where proposed. The first proto
 
 Images of the final version can be seen in Figure 1.
 
-
+<<<<<<< HEAD
+Sensor in the front.
+=======
 \begin{figure}[h!]
 	\centering
 	\begin{subfigure}[b]{0.3\textwidth}
@@ -35,4 +49,5 @@ Images of the final version can be seen in Figure 1.
 	\caption{Robot design views}\label{fig:robot}
 \end{figure}
 
-
+\end{document}
+>>>>>>> origin/master
