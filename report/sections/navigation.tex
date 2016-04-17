@@ -1,43 +1,5 @@
-\documentclass[12pt]{article}
-\usepackage{geometry}
-\geometry{
-a4paper,
-margin = 0.7in
-}
-\usepackage[ruled,linesnumbered]{algorithm2e}
-\usepackage{graphicx}
-\usepackage{subcaption}
-\usepackage{romannum}
-\graphicspath{ {fig/} }
 
-\begin{document}
-\section{Robot configuration}
-% describe the design
-% what are the advantages
-We mainly focus on two aspects when configuring the Lego robot, namely {\itshape \romannum{1})} stability and {\itshape \romannum{2})} feasibility. The complete configuration of the robot is visualised in Fig.\ref{fig:robotconfig}, where there are three images showing the front, side and back appearances of the robot respectively. 
-
-The total height of the robot is approximately 18 cm. The width and length are 13 cm and 19.5 cm, respectively. This configuration ensures that the robot does not occupy too much space in the arena. The ultrasonic sensor, which is the only sensor being used, is placed in the lower front with an approximate height of 6.5 cm and has a vision range of 180 degrees. Using a 360 degree of freedom seems to be more useful but we do not employ this design since the wire connecting the sensor with the brick influences the turning of the sensor. A novel feature used in this design is the support device installed in the back as shown in Fig.\ref{fig:backrobot}, where two balls are positioned inside the two white slots to reduce the friction between the ground and the support device. 
-
-\begin{figure}[h]
-\centering
-  \begin{subfigure}{0.25\textwidth}
-  \includegraphics[scale=0.15]{f}
-  \caption{Front appearance}
-  \end{subfigure}
-  \begin{subfigure}{0.25\textwidth}
-  \includegraphics[scale=0.15]{s}
-  \caption{Side appearance}
-  \end{subfigure}
-  \begin{subfigure}{0.25\textwidth}
-  \includegraphics[scale=0.15]{b}
-  \caption{Back appearance} \label{fig:backrobot}
-  \end{subfigure}
-  \caption{Robot configuration.}
-  \label{fig:robotconfig}
-\end{figure}
-
-\section{Simulation}
-\subsection{Localisation}
+\subsection{Navigation}
 In this section, we provide detailed implementation of particle filters localisation (PFL) and novel features used to boost the performance. The Bayesian reasoning of particle filters, however, is not focused in this section.
 
 \vspace{1em}
@@ -117,7 +79,4 @@ By running this algorithm to localise the robot in the simulation, we obtained p
 \end{figure} 
 
 
-
-
-
-\end{document}
+\FloatBarrier

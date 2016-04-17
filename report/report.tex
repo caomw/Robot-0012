@@ -67,7 +67,14 @@ ps2pdf -dAutoRotatePages/None -dEPSCrop #1 \OutputFile
 %\usepackage{subfig}
 \usepackage{float}
 
-\usepackage{fullpage}
+%\usepackage{fullpage}
+\usepackage{geometry}
+\geometry{a4paper,margin = 0.7in}
+\usepackage[ruled,linesnumbered]{algorithm2e}
+%\usepackage{romannum}
+\makeatletter
+\newcommand*{\rom}[1]{\expandafter\@slowromancap\romannumeral #1@}
+\makeatother
 
 
 \newcommand{\tab}{\hspace*{15pt}}
@@ -144,25 +151,20 @@ ps2pdf -dAutoRotatePages/None -dEPSCrop #1 \OutputFile
 \begin{document}
 	\titleM
 	
-	\section{Introduction}
-		
-	\input{Sergio}
+	\input{./sections/introduction}
 	
-	\section{Mathematical modelling}
+	\input{./sections/robot}
 	
-		\subsection{Sensors}
-		
-		\subsection{Actuators}
-		
-		\subsection{Overall system}
-		
-		\subsection{Experiments, validation}
+			
+	
+	\input{./sections/mathematical_modelling}
+	
 		
 	\section{The kidnapped robot problem}
 	
-		\subsection{Localization}
+		\input{./sections/navigation}
 		
-		\input{guidance}
+		\input{./sections/guidance}
  	
  	\section{Results}
  	
@@ -176,7 +178,7 @@ ps2pdf -dAutoRotatePages/None -dEPSCrop #1 \OutputFile
  
  \printbibliography
  
- \section*{Appendix}
+% \section*{Appendix}
  
  		 	
 	 	
