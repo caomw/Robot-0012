@@ -14,7 +14,8 @@
 
 %\usepackage{natbib}
 %\bibliographystyle{agsm}
-\usepackage[backend=bibtex,style=authoryear,sorting=nyt,maxcitenames=2,uniquelist=false]{biblatex}
+%\usepackage[backend=bibtex,style=authoryear,sorting=nyt,maxcitenames=2,uniquelist=false]{biblatex}
+\usepackage[backend=bibtex]{biblatex}
 \addbibresource{ref.bib} % note the .bib is required
 
 
@@ -61,7 +62,9 @@ ps2pdf -dAutoRotatePages/None -dEPSCrop #1 \OutputFile
 
 %\usepackage{tikz}
 \usepackage{caption}
-\usepackage{subcaption}
+%\usepackage{subcaption}
+\usepackage{placeins}
+\usepackage{subfig}
 \usepackage{float}
 
 \usepackage{fullpage}
@@ -142,8 +145,8 @@ ps2pdf -dAutoRotatePages/None -dEPSCrop #1 \OutputFile
 	\titleM
 	
 	\section{Introduction}
-	
-		\subsection{Robot design}
+		
+		\input{Sergio}
 	
 	\section{Mathematical modelling}
 	
@@ -159,7 +162,7 @@ ps2pdf -dAutoRotatePages/None -dEPSCrop #1 \OutputFile
 	
 		\subsection{Localization}
 		
-		\subsection{Navigation and planning}
+		\input{guidance}
  	
  	\section{Results}
  	

@@ -5,7 +5,7 @@ function [botSim] = localiseALL(botSim,map,target)
     drawParticles=false;
     %% setup code
     %you can modify the map to take account of your robots configuration space
-    wallDistlim=15;
+    wallDistlim=10;
     modifiedMap = MapBorder2(map, wallDistlim); 
     botSim.setMap(map);
     botDummy=BotSim(modifiedMap);
@@ -129,7 +129,7 @@ function [botSim] = localiseALL(botSim,map,target)
             stepSize=5;
             directionNew=pathExplore(knownPoints,beenThere);
 
-            e=0.1;
+            e=0.2;
             robotCommand(2)=e*directionNew;
             %direction=directionNew;
             robotCommand(1)=stepSize;
@@ -180,6 +180,8 @@ function [botSim] = localiseALL(botSim,map,target)
             plot(beenThere2(1,:),beenThere2(2,:),'.b')
             %bound=boundary(knownPoints2',1);
             %plot(knownPoints2(1,bound),knownPoints2(2,bound));
+            xlabel('X coordinate (cm)');
+            ylabel('Y coordinate (cm)');
             drawnow;
         end
         %toc

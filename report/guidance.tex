@@ -1,0 +1,60 @@
+\subsection{Guidance}
+
+	Before and after the robot is localized in the map, it has to know what to do next according to the current objective, which are:
+	\begin{enumerate}
+		\item Avoid collision all time,
+		\item Explore map,
+		\item Go to target.
+	\end{enumerate}
+	
+	\subsubsection{Collision avoidence}
+	
+		The robot's highest priority objective is avoiding collisions with the walls. This is done by a simple algorithm, which estimates the smallest distance between the robot and the scanned points based on the commanded movement. If this predicted distance is smaller than a certain threshold, it 'bounces back' from the boundary (see Figure \ref{fig:ca}). The reflected angle is perturbed with a small noise factor, so the robot does not get stuck in an area (e.g. when it goes perpendicular to the wall).
+		
+		\begin{figure}[h]
+		   \centering
+			\includegraphics[width=.75\textwidth]{ca1}
+		    
+		   \caption{'Wall bouncing', with a distance threshold of 10cm (inner boundary).}
+		   \label{fig:ca}
+	 	\end{figure}
+	
+	\subsubsection{Exploration}
+	
+		The exploration is done before the PFL is converged to a location (i.e. the localization is not complete), so the robot can wonder around the map and exploit more of its features. The robot builds an internal map of the sensed points (called {\tt knownPoints} in the code) and the points where it had been (called {\tt beenThere} in the code), which serve as the basis of the decision making. These are based on the commanded movements and sensor data, so they are a rough estimate of the surrounding space. 
+		
+		The points are used to build an \textit{Artificial potencial field} ($U$), and drive the robot downhill (i.e. $-\nabla U$) \parencite{choset_principles_2005}. Since the points where the robot had been is also used for this field (with different weight than the walls), the robot is driven towards unexplored locations. The result can be seen on Figure \ref{fig:apf}.
+		
+		\begin{figure}[h]
+		    \centering
+		    \subfloat[][]{\includegraphics[width=.5\textwidth]{apf1}\label{fig:apf1}}
+		    ~
+		    \subfloat[][]{\includegraphics[width=.5\textwidth]{apf2}\label{fig:apf2}}
+		     
+		    \caption{Simulation with artificial potential field as guidance ($\epsilon=0.3$). \protect\subref{fig:apf1} Initial path. \protect\subref{fig:apf2} Path after some time.}
+		    \label{fig:apf}
+	 	\end{figure}
+	 	
+	 	The effect of the potencial field can be tuned by the constant $\epsilon$, so the commanded turning angle is:
+	 	\begin{equation}
+			\delta \theta=\epsilon\cdot\arg(-\nabla U),
+	 	\end{equation}
+	 	meaning that with lower $\epsilon$ the robot has higher inertia (goes more uphill). The commanded forward movement is kept constant, so the robot gives more consistent response even on higher gradient values (e.g. close to a wall).
+	 	
+	 	
+	 	This feature improves the robot's movement compared to the simple bouncing, but it needs the collision avoidance as a simple backup. The result is shown on Figure \ref{fig:apf3}.
+
+		
+		\begin{figure}[h]
+			\centering
+			\includegraphics[width=.75\textwidth]{apf3}
+			
+			\caption{Combined exploration (artificial potential field with $\epsilon=0.2$ and collision avoidance), the former explores the space, a latter makes sure that the robot does not collide with the wall in any circumstances.}
+			\label{fig:apf3}
+	 	\end{figure}
+	 	
+	\subsubsection{Path planning} 	
+	
+		After the PFL is converged, the robot can plan its path from its current location to the target. The planning algorithm was a standard A* search \parencite{introduction_astar} on a visibility graph \parencite{choset_principles_2005} defined by the map, robot and target. This way the search space for the optimal path is greatly reduced and the movements are smoother compared to a grid splitting of the map.
+	 	
+		\FloatBarrier
