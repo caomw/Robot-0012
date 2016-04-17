@@ -102,10 +102,10 @@ function [botSim] = localiseALL(botSim,map,target)
         knownPoints = circshift(knownPoints,numel(botScan),2);
 
         %% Write code to check for convergence   
-        %isPFLdone=0;
+        isPFLdone=0;
         gotoTarget=isPFLdone;
         explore=~isPFLdone;
-        
+        %pose=[botSim.getBotPos() 0];
         if gotoTarget && plan
             display('Target plan')
             stepSize=10;
