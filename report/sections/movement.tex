@@ -1,0 +1,31 @@
+\subsection{Robot movement}
+
+	The robot being a two-wheeled-robot, the motion can be described by a forward movement speed ($\dot{y}$) and turning rate ($\dot{\varphi}$), which depend on the wheel rotations ($\dot{\theta}_i$):
+	\begin{gather}
+	\begin{bmatrix}
+		\dot{y}\\\dot{\varphi}
+	\end{bmatrix}=\vc{Z}
+	\begin{bmatrix}
+		\dot{\theta}_1\\			
+		\dot{\theta}_2
+	\end{bmatrix},\\
+	\vc{Z}=R
+	\begin{bmatrix}
+		\frac{1}{2} & \frac{1}{2}\\ \frac{1}{w} & -\frac{1}{w}
+	\end{bmatrix},
+	\end{gather}
+	where $R$ the radius of the wheels and $w$ is the width of the robot.
+	
+	Since the system is non-holonomic, to reach a certain target position the robot is turned in the direction of the target ($\delta\varphi$), and moved the distance between the current location and the target ($\delta y$). Therefore the commanded wheel rotations are:
+	\begin{gather}
+		\begin{bmatrix}
+			\theta_1\\			
+			\theta_2
+		\end{bmatrix}=\vc{Z}^{-1}
+		\begin{bmatrix}
+			\delta y\\\delta \varphi
+		\end{bmatrix}
+	\end{gather}
+	
+	Since the hardware contains a low level PID controller for the actuator positions, this was enough to move the robot to the desired position.
+		
