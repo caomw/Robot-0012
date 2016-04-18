@@ -68,7 +68,7 @@ end
 if isPFLdone == 0
     covmat = cov(newPos);
     eigval = eig(covmat);
-    sumeig = sum(eigval); % threshold: 30(num=500)
+    sumeig = sum(eigval) % threshold: 30(num=500)
 end
 
 %% return

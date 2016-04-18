@@ -1,11 +1,11 @@
 function [botSim] = localiseALL(botSim,map,target)
 %This function returns botSim, and accepts, botSim, a map and a target.
 %LOCALISE Template localisation function
-    REAL=false;
+    REAL=true;
     drawParticles=false;
     %% setup code
     %you can modify the map to take account of your robots configuration space
-    wallDistlim=10;
+    wallDistlim=15;
     modifiedMap = MapBorder2(map, wallDistlim); 
     botSim.setMap(map);
     botDummy=BotSim(modifiedMap);
@@ -50,7 +50,7 @@ function [botSim] = localiseALL(botSim,map,target)
     plan=1;
     d=Inf;
     moveRes=5;
-    stepSize=5;
+    stepSize0=10;
     reLoc=3;
     exploreSteps=2;
     steps=0;
@@ -102,13 +102,13 @@ function [botSim] = localiseALL(botSim,map,target)
         knownPoints = circshift(knownPoints,numel(botScan),2);
 
         %% Write code to check for convergence   
-        isPFLdone=0;
+        %isPFLdone=0;
         gotoTarget=isPFLdone;
         explore=~isPFLdone;
         %pose=[botSim.getBotPos() 0];
         if gotoTarget && plan
             display('Target plan')
-            stepSize=10;
+            stepSize=stepSize0*2;
             commands=pathPlan(pose,target,modifiedMap, map);
             if ~isempty(commands)
                 robotCommand=commands(1,:);
@@ -126,7 +126,7 @@ function [botSim] = localiseALL(botSim,map,target)
         end    
         if explore && plan
             display('Explore plan')
-            stepSize=5;
+            stepSize=stepSize0;
             directionNew=pathExplore(knownPoints,beenThere);
 
             e=0.2;
@@ -221,6 +221,7 @@ function [botSim] = localiseALL(botSim,map,target)
             else
                 turn=-2*sign(scanLines(nidx))*(pi/2-abs(scanLines(nidx)))+0.05*(rand(1)-0.5)*abs(scanLines(nidx));
             end
+            move=stepSize0/2;
             plan=1;
         end
 
@@ -260,7 +261,7 @@ function [botSim] = localiseALL(botSim,map,target)
             done=1;
         end
         
-        if (distance(pose(1:2),target)<dlim && isPFLdone) || toc>100
+        if (distance(pose(1:2),target)<dlim && isPFLdone) || toc>1000
             done=1;
         end
         

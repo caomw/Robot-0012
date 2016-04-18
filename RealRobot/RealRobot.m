@@ -91,33 +91,22 @@ classdef RealRobot < handle
             c=0;
             while angle<direction*a_lim-5
                 c=c+1;
-                %obj.mSensor.SendToNXT(); 
-                %obj.mSensor.WaitFor();
-                %pause(1)
                 angle=obj.getSensAngle();
                 dist(c) = GetUltrasonic(SENSOR_1);
                 angle=(angle+obj.getSensAngle())/2;
                 angles(c)=angle;
-                %fprintf(fid, '%f \n', R(c)');
             end
-            %if wait
-            %angle
             obj.mSensor.WaitFor();
             obj.mSensor.Stop('off');
-                %pause(2);
-            %end
             
-            
-            %obj.mSensor.TachoLimit=resolution;
-            
-            %fclose(fid);
             obj.turnSensor(0,1,90); 
             %NXT_PlayTone(500, 100);
             
             %scan0=obj.condDataR2(angles,dist);
             scan0=obj.condDataR(angles,dist);
-            scan=scan0(:,[1 3]);
             
+            %scan0=obj.condDataR0(angles,dist);
+            scan=scan0(:,[1 3]);
         end
         
         function sendMotorCommand(obj,theta,wait)
@@ -177,9 +166,54 @@ classdef RealRobot < handle
             theta=rad2deg(theta);
         end
         
+        function scan=condDataR0(obj,angles,dist,p)
+            
+            
+            
+            angles=angles(dist<90);
+            p =[0.000000060758403  -0.000012216779499  -0.000142367747446   1.102508214926583  -1.035450741947817];
+            
+            dist=dist(dist<90);
+            scan(:,2)=dist(dist~=-1);
+            %dist=polyval(p,dist);
+            %{
+            u=unique(angles);
+            n=histc(angles,u);
+            multiples=u(n>1);
+            for i=1:numel(multiples)
+                mask=angles==multiples(i);
+                idx=find(mask);
+                distM=mean(dist(mask));
+                dist=dist(~mask);
+                angles=angles(~mask);
+                angles=[angles(1:idx(1)-1);multiples(i);angles(idx(1):end)];
+                dist=[dist(1:idx(1)-1);distM;dist(idx(1):end)];
+            end
+            %}
+
+            scanRaw=[deg2rad(angles(dist~=-1)) dist(dist~=-1)];
+
+            
+            offset=0;
+            gamma=(scanRaw(:,1));
+            a=scanRaw(:,2)+offset;
+            b=obj.sensC;
+            c=sqrt(a.^2+b^2-2*a.*b.*cos(pi-abs(gamma)));
+            %sqrt((scan(:,3)+2).^2+obj.sensC^2-2*scan(:,3)*obj.sensC.*cos(pi-abs(scan(:,1))));
+            alpha=acos((a.^2-b.^2-c.^2)./(-2*c*b));
+            
+            
+            scan(:,3)=c;
+            scan(:,1)=alpha.*sign(gamma);
+            
+
+        end
+        
         function scan=condDataR(obj,angles,dist,p)
-            angles=angles(dist~=255);
-            dist=dist(dist~=255);
+            angles=angles(dist<80);
+            p =[0.000000060758403  -0.000012216779499  -0.000142367747446   1.102508214926583  -1.035450741947817];
+            angles=polyval(p,angles);
+            dist=dist(dist<80);
 
             u=unique(angles);
             n=histc(angles,u);
@@ -267,9 +301,18 @@ classdef RealRobot < handle
                 grid on
                 axis([-pi/2 pi/2 -10 100]);
             end
+            offset=0;
+            gamma=(scan(:,1));
+            a=scan(:,3)+offset;
+            b=obj.sensC;
+            c=sqrt(a.^2+b^2-2*a.*b.*cos(pi-abs(gamma)));
+            %sqrt((scan(:,3)+2).^2+obj.sensC^2-2*scan(:,3)*obj.sensC.*cos(pi-abs(scan(:,1))));
+            alpha=acos((a.^2-b.^2-c.^2)./(-2*c*b));
             
             
-            scan(:,3)=sqrt((scan(:,3)+2).^2+obj.sensC^2-2*scan(:,3)*obj.sensC.*cos(pi-scan(:,1)));
+            scan(:,3)=c;
+            scan(:,1)=alpha.*sign(gamma);
+            
 
         end
         

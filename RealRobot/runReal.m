@@ -52,7 +52,7 @@ function [ output_args ] = runReal( adminKey )
     numberOfrepeats = 1;
 
     %Predefined start and target positions
-    startPositions =  [80,80;30,20;50,70 ]; %These will change
+    startPositions =  [4*22,4*22];
     targetPositions = [20,20;100,20;230,70]; %These will change
 
     %adminKey =0;% rand(1); %During marking another key will be used ;)

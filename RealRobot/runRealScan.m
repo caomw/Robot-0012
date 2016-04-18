@@ -12,12 +12,12 @@ for i=1:size(scan,1)
 end
 
 for i=1:size(scan,1)
-    knownPoints{2}(:,i)=scan(i,3)* Rot((scan(i,1))) *unitV;
+    %knownPoints{2}(:,i)=scan(i,3)* Rot((scan(i,1))) *unitV;
 end
 
 figure
 plot(knownPoints{1}(1,:),knownPoints{1}(2,:),'x')
 hold on
-plot(knownPoints{2}(1,:),knownPoints{2}(2,:),'.')
+%plot(knownPoints{2}(1,:),knownPoints{2}(2,:),'.')
 axis equal
 grid on

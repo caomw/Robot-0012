@@ -1,5 +1,5 @@
 \newcommand{\ass}{Robotic systems\\ Report}
-\newcommand{\name}{ CJLZ-2\\Sergio Castillo (jc15275) \\ Vince Jankovics (vj15292)\\ Miguel Lagunes-Fortiz (ml15765)\\ Kaiyang Zhou (kz15291)}
+\newcommand{\name}{ CJLZ-2\\Sergio Castillo\\ Vince Jankovics\\ Miguel Lagunes-Fortiz\\ Kevin Zhou}
 
 \documentclass[12pt,a4paper]{article}
 \usepackage[utf8]{inputenc}
@@ -113,7 +113,7 @@ ps2pdf -dAutoRotatePages/None -dEPSCrop #1 \OutputFile
 {\Huge\bfseries \ass}\\[\baselineskip]
 {\large\scshape \name}\par
 \vfill
-\vspace*{2\drop}
+%\vspace*{2\drop}
 %\pagebreak
 \endgroup
 
@@ -142,30 +142,26 @@ ps2pdf -dAutoRotatePages/None -dEPSCrop #1 \OutputFile
 %  \footnotesize
   \scriptsize \arraycolsep=0.8\arraycolsep\ensuremath{\begin{bmatrix}#1\end{bmatrix}}}}
 
+\makeatletter
+\newcommand*{\rom}[1]{\expandafter\@slowromancap\romannumeral #1@}
+\makeatother
+
 \begin{document}
 	\titleM
 	
-	\section{Introduction}
+	\input{./sections/introduction}
 		
-	\input{Sergio}
+	\input{./sections/robot}
 	
-	\section{Mathematical modelling}
 	
-		\subsection{Sensors}
-		
-		\subsection{Actuators}
-		
-		\subsection{Overall system}
-		
-		\subsection{Experiments, validation}
 		
 	\section{The kidnapped robot problem}
-	
-		\subsection{Localization}
 		
-		\input{MikeParam}
+		\input{./sections/navigation}
 		
-		\input{guidance}
+%		\input{./sections/MikeParam}
+		
+		\input{./sections/guidance}
  	
  	\section{Results}
  	
@@ -179,7 +175,7 @@ ps2pdf -dAutoRotatePages/None -dEPSCrop #1 \OutputFile
  
  \printbibliography
  
- \section*{Appendix}
+% \section*{Appendix}
  
  		 	
 	 	
