@@ -112,7 +112,7 @@ function [botSim] = localise(botSim,map,target)
         explore=~isPFLdone;
 
         if gotoTarget && plan
-            display('Target plan')
+            %display('Target plan')
             stepSize=stepSize0*2;
             commands=pathPlan(pose,target,modifiedMap, map);
             if ~isempty(commands)
@@ -127,7 +127,7 @@ function [botSim] = localise(botSim,map,target)
             
         end    
         if explore && plan
-            display('Explore plan')
+            %display('Explore plan')
             stepSize=stepSize0;
             directionNew=pathExplore(knownPoints,beenThere);
 
