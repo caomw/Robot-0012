@@ -20,20 +20,21 @@ The total height of the robot is approximately 18 cm. The width and length are 1
   \caption{Back appearance} \label{fig:backrobot}
   \end{subfigure}
   \caption{Robot configuration.}
-  \label{fig:sensorerrors}
+  \label{fig:robotconfig}
 \end{figure}
 
 \subsection{Sensors}
 
-Our robot only uses the ultrasonic sensor to measure its environment. In figure \ref{fig:sensorerrors}, the sensor error can be seen, the red dots demonstrate how the corners can't be measure correctly. Walls are not measure in a straight light and are slightly curve in the robot's world.
+Our robot only uses the ultrasonic sensor to measure the environment. In Fig.\ref{fig:sensorerrors}, the dense blue points represent the roughly accurate sensor readings. The red points away from the blue lines are the invalid readings that are caused by corners. Therefore, it can be concluded that the ultrasonic sensor cannot perform well in measuring the distance from corners and the resulting readings are thus outliers that should be discarded.
 
-In order to increase the accuracy of the robot while scanning and not affect the navigation and guidance steps, these high errors(i.e red dots in figure \ref{fig:sensorerrors}) were avoided and not taken into account. If the measurement jumps more than 2 cm then that points are not used.
+In order to discard those outliers, after receiving all the information from the environment, the scan range is divided into sections based on the difference between the neighbouring datapoints, for example, Fig.\ref{fig:err2} is divided into 3 sections. To determine between real walls and noise a rule considers the angle from the first point (rightmost/bottom) in the section to the last point (leftmost/top) in the same section taking as the origin the coordinate (0,0), if the resulting angle is less than 15 degrees then that section is considered as noise. 
 
 \begin{figure}[h]
 \centering
 	\begin{subfigure}{0.5\textwidth}
 		\includegraphics[scale=0.50]{noCorners1}
 		\caption{Robot standing perpendicular to a corner}
+		\label{fig:err2}
 	\end{subfigure}
 	\begin{subfigure}{0.4\textwidth}
 		\includegraphics[scale=0.50]{noCorners2}
