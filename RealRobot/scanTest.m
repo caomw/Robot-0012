@@ -9,7 +9,7 @@ scan=condData(data(:,1),data(:,2));
 unitV=[0;1];
 %% stuff
 for i=1:size(scan,1)
-    knownPoints1(:,i)=scan(i,3)* Rot((scan(i,1))) *unitV;
+    knownPoints1(:,i)=scan(i,2)* Rot((scan(i,1))) *unitV;
     %knownPoints=[knownPoints botScan(i)*Rot(scanLines(i)-pi/2)*unitV];
 end
 for i=1:size(data,1)
@@ -21,3 +21,10 @@ plot(knownPoints1(1,:),knownPoints1(2,:),'x')
 hold on
 plot(knownPoints2(1,:),knownPoints2(2,:),'.')
 axis equal
+grid on
+
+return
+figure
+polar(scan(:,1),scan(:,3),'.')
+hold on
+polar(data(:,1),data(:,2),'.')

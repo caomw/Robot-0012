@@ -1,11 +1,13 @@
-function scan=condData(angles,dist,plotE)
+function scanOut=condData(angles,dist,plotE)
 
     %data=csvread(['scanresult_' num2str(plotE) '.txt']);
     %angles=data(:,1);
     %dist=data(:,2);
-
+    closeThreshold=30;
     angles=angles(dist~=255);
+    anglesClose=angles(dist<closeThreshold);
     dist=dist(dist~=255);
+    distClose=dist(dist<closeThreshold);
 
     u=unique(angles);
     n=histc(angles,u);
@@ -76,6 +78,6 @@ function scan=condData(angles,dist,plotE)
         grid on
         axis([-pi/2 pi/2 -10 100]);
     end
-
+    scanOut=[scan(:,[1 3]);anglesClose distClose];
 
 end

@@ -1,7 +1,7 @@
 function [botSim] = localiseALL(botSim,map,target)
 %This function returns botSim, and accepts, botSim, a map and a target.
 %LOCALISE Template localisation function
-    REAL=false;
+    REAL=true;
     drawParticles=false;
     %% setup code
     %you can modify the map to take account of your robots configuration space
@@ -64,6 +64,7 @@ function [botSim] = localiseALL(botSim,map,target)
     robotCommand=zeros(1,2);
     dlim=5;
     done=0;
+    avoid=0;
     while(~done) %%particle filter loop
         %tic
         n = n+1; %increment the current number of iterations
@@ -106,7 +107,7 @@ function [botSim] = localiseALL(botSim,map,target)
         gotoTarget=isPFLdone;
         explore=~isPFLdone;
         %pose=[botSim.getBotPos() 0];
-        if gotoTarget && plan
+        if gotoTarget && plan && ~avoid
             display('Target plan')
             stepSize=stepSize0*2;
             commands=pathPlan(pose,target,modifiedMap, map);
@@ -124,12 +125,12 @@ function [botSim] = localiseALL(botSim,map,target)
             end
             
         end    
-        if explore && plan
+        if explore && plan && ~avoid
             display('Explore plan')
             stepSize=stepSize0;
             directionNew=pathExplore(knownPoints,beenThere);
 
-            e=0.2;
+            e=0.3;
             robotCommand(2)=e*directionNew;
             %direction=directionNew;
             robotCommand(1)=stepSize;
@@ -214,16 +215,26 @@ function [botSim] = localiseALL(botSim,map,target)
         if nextPdist==0;
             plan=1;
         end
-        nearestNext=nearest-move*cos(scanLines(nidx)-turn);
-        if nearestNext<wallDistlim*0.9
+        nearestNext=nearest-0*move*cos(scanLines(nidx)-turn);
+        
+        %if avoid
+        if nearestNext<wallDistlim*1.3
             if abs(scanLines(nidx))<0.1
                 turn=0.9*pi;
             else
                 turn=-2*sign(scanLines(nidx))*(pi/2-abs(scanLines(nidx)))+0.05*(rand(1)-0.5)*abs(scanLines(nidx));
             end
             move=stepSize0/2;
+            avoid=0;
             plan=1;
         end
+        
+            
+            
+            %move=-stepSize0/2;
+            %turn=0;
+            %avoid=1;
+        %end
 
         %turn=commands(1,2);
         steps=steps+1;

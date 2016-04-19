@@ -37,23 +37,19 @@ function [ output_args ] = runReal( adminKey )
                 110,66;
                 110,110;
                 0,110]; %default map
-    maps{2} = [0,0;60,0;60,50;100,50;70,0;110,0;150,80;30,80;30,40;0,80]; %long map
-    maps{3} = [-30,0;-30,40;30,40;30,60;5,60;45,90;85,60;60,60;60,40;120,40;120,60;95,60;135,90;175,60;150,60;150,40;210,40;210,60;185,60;225,90;265,60;240,60;240,40;300,40;300,0]; %repeated features
-
     %Different noise levels to be tested
     noiseLevel(:,1) = [0,0,0]; %no noise
-    noiseLevel(:,2) = [1,0.001,0.0005]; %all the noise
 
     %The number of time the function is run so that the average performance can
     %be calculated. This will be much larger during real marking.
     %if the value is 1 it will run from predefined start and target positions
     %If the number is greater than 1, the first test will be from predefined
     %positions, and the rest will be randomised.
-    numberOfrepeats = 1;
+    numberOfrepeats = 2;
 
     %Predefined start and target positions
-    startPositions =  [4*22,4*22];
-    targetPositions = [20,20;100,20;230,70]; %These will change
+    startPositions =  [4*22,4*22;20,20];
+    targetPositions = [20,20;4*22,4*22];
 
     %adminKey =0;% rand(1); %During marking another key will be used ;)
 
@@ -69,19 +65,14 @@ function [ output_args ] = runReal( adminKey )
 
         %% marking
         for i = 1:1%size(maps,1)
-            for j=1:size(noiseLevel,2)
-                fprintf('map %0.f\t noiseLevels %0.f \n',i,j);
                 for k = 1:numberOfrepeats
                     clf;        %clears figures
-                    botSim = BotSim(maps{i},noiseLevel(:,j),adminKey);  %sets up botSim object with adminKey
+                    botSim = BotSim(maps{i},noiseLevel(:,1),adminKey);  %sets up botSim object with adminKey
 
-                    if k ==1 %runs from preset start and target positions first time, after that choose random positions
-                        botSim.setBotPos(startPositions(i,:),adminKey)
-                        target = targetPositions(i,:);
-                    else
-                        botSim.randomPose(10); %puts the robot in a random position at least 10cm away from a wall
-                        target = botSim.getRndPtInMap(15)  %gets random target
-                    end
+                    
+                    botSim.setBotPos(startPositions(k,:),adminKey)
+                    target = targetPositions(k,:);
+                    
                     botSim.drawMap();
                     botSim.drawBot(3);
                     plot(target(1),target(2),'*');
@@ -101,8 +92,8 @@ function [ output_args ] = runReal( adminKey )
                     
                     
                     %% results calculation
-                    resultsTime(i,j,k) = toc; %stops timer
-                    resultsDis(i,j,k) =  distance(target, returnedBot.getBotPos(adminKey));
+                    resultsTime(i,1,k) = toc; %stops timer
+                    resultsDis(i,1,k) =  distance(target, returnedBot.getBotPos(adminKey));
                     path = returnedBot.getBotPath(adminKey);             
                     pathLength = 0;
                     collided = 0;
@@ -121,12 +112,11 @@ function [ output_args ] = runReal( adminKey )
                     end
 
                     %% collate and print results
-                    resultsLength(i,j,k) = pathLength;
-                    resultsCollision(i,j,k) = collided;
-                    fprintf('Time: %.3f, Distance: %.3f, Length: %.3f, Collision: %.0f\n',resultsTime(i,j,k), resultsDis(i,j,k),pathLength,collided);
+                    resultsLength(i,1,k) = pathLength;
+                    resultsCollision(i,1,k) = collided;
+                    fprintf('Time: %.3f, Distance: %.3f, Length: %.3f, Collision: %.0f\n',resultsTime(i,1,k), resultsDis(i,1,k),pathLength,collided);
                 end
                 disp(' ');
-            end
         end
 
         %% Calculate average scores

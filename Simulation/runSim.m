@@ -35,7 +35,7 @@ function [ output_args ] = runSim( adminKey )
 
     %Different noise levels to be tested
     noiseLevel(:,1) = [0,0,0]; %no noise
-    noiseLevel(:,2) = [1,0.001,0.0005]; %all the noise
+    noiseLevel(:,2) = [2,1,0.1]; %all the noise
 
     %The number of time the function is run so that the average performance can
     %be calculated. This will be much larger during real marking.

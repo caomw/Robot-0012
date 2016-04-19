@@ -29,15 +29,15 @@ classdef RealRobot < handle
             OpenUltrasonic(SENSOR_1);
             
             obj.motor=NXTMotor.empty(2,0);
-            obj.motorPow=50;
+            obj.motorPow=100;
             %left
-            obj.motor(1)= NXTMotor('A', 'Power',0,'SpeedRegulation',true,'TachoLimit',0,'ActionAtTachoLimit','Brake','SmoothStart',true);
+            obj.motor(1)= NXTMotor('A', 'Power',0,'SpeedRegulation',true,'TachoLimit',0,'ActionAtTachoLimit','Brake','SmoothStart',false);
             %right
-            obj.motor(2)= NXTMotor('B', 'Power',0,'SpeedRegulation',true,'TachoLimit',0,'ActionAtTachoLimit','Brake','SmoothStart',true);
+            obj.motor(2)= NXTMotor('B', 'Power',0,'SpeedRegulation',true,'TachoLimit',0,'ActionAtTachoLimit','Brake','SmoothStart',false);
             obj.motor(1).SendToNXT(); 
             obj.motor(2).SendToNXT();
             
-            obj.mSensorPower=10;
+            obj.mSensorPower=80;
             obj.mSensor= NXTMotor('C', 'Power', obj.mSensorPower,'SpeedRegulation',true,'TachoLimit',0,'ActionAtTachoLimit','Brake','SmoothStart',false);
             
             obj.sensorRays=10;
@@ -106,7 +106,7 @@ classdef RealRobot < handle
             scan0=obj.condDataR(angles,dist);
             
             %scan0=obj.condDataR0(angles,dist);
-            scan=scan0(:,[1 3]);
+            scan=scan0(:,[1 end]);
         end
         
         function sendMotorCommand(obj,theta,wait)
@@ -209,12 +209,20 @@ classdef RealRobot < handle
 
         end
         
-        function scan=condDataR(obj,angles,dist,p)
+        function scanOut=condDataR(obj,angles,dist,p)
+            
+            
+            closeThreshold=30;
+            angles=angles(dist<80);
+            %anglesClose=angles(dist<closeThreshold);
+            dist=dist(dist<80);
+            %distClose=dist(dist<closeThreshold);
+            %{
             angles=angles(dist<80);
             p =[0.000000060758403  -0.000012216779499  -0.000142367747446   1.102508214926583  -1.035450741947817];
             angles=polyval(p,angles);
             dist=dist(dist<80);
-
+            %}
             u=unique(angles);
             n=histc(angles,u);
             multiples=u(n>1);
@@ -228,7 +236,7 @@ classdef RealRobot < handle
                 dist=[dist(1:idx(1)-1);distM;dist(idx(1):end)];
             end
 
-            scanRaw=[angles(dist~=-1) dist(dist~=-1)];
+            scanRaw=[deg2rad(angles(dist~=-1)) dist(dist~=-1)];
 
             distThreshold=2;
             dscan=[scanRaw(1:end-1,1) diff(scanRaw(:,2))];
@@ -246,7 +254,7 @@ classdef RealRobot < handle
                 
             padding=1;
             numThreshold=5;
-            angleThreshold=15;
+            angleThreshold=deg2rad(10);
             n=1;
             points={};
             for i=1:length(jPoints)-1
@@ -280,27 +288,9 @@ classdef RealRobot < handle
             scanSteps=round(size(scanRaw,1)/obj.sensorRays);
             %scanSteps=1;
             scan=scan(1:scanSteps:end,:);
-            scan(:,1)=deg2rad(scan(:,1));
+            %scan(:,1)=deg2rad(scan(:,1));
 
-            %scan(:,2)
-            %fitted=fitting2(scan(:,2));
-
-            if nargin>3
-                %dlmwrite(['scanresult_' num2str(num) '.txt'],scanRaw)
-                figure
-                plot(deg2rad(scanRaw(:,1)),scanRaw(:,2),'.')
-                hold on
-                plot(scan(:,1),scan(:,3),'.')
-                %plot(scan(:,1),fitted(:),'x')
-                %plot(dscan(:,1),dscan(:,2),'.')
-                for i=1:length(jPoints)
-                    %scanRaw(jPoints(i),1)
-                    plot(deg2rad([scanRaw(jPoints(i),1) scanRaw(jPoints(i),1)]),[-10 100],'k--')
-                end
-                hold off
-                grid on
-                axis([-pi/2 pi/2 -10 100]);
-            end
+            
             offset=0;
             gamma=(scan(:,1));
             a=scan(:,3)+offset;
@@ -312,7 +302,7 @@ classdef RealRobot < handle
             
             scan(:,3)=c;
             scan(:,1)=alpha.*sign(gamma);
-            
+            scanOut=[scanRaw(1,:);scan(:,[1 3]);scanRaw(end,:)];%;deg2rad(anglesClose) distClose];
 
         end
         
