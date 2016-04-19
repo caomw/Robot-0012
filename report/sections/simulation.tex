@@ -1,0 +1,40 @@
+\subsection{Simulation}
+\begin{table}[h]
+\begin{center}
+	\begin{tabular}{ |c|c|c|c| }
+		\hline
+		Map & \multicolumn{1}{|p{3cm}|}{\centering Avg. completition time(s) } &\multicolumn{1}{|p{3cm}|}{\centering Avg. distance from target(cm) }  & collision(\%)  \\ 
+		\hline
+		\hline
+		1 & 5.33 & 0.67 & 0 \\  
+		2 & 8.01 & 0.57 & 0 \\ 
+		3 & 14.74 & 1.03 & 0 \\ 
+		\hline 
+	\end{tabular}
+	\caption{Results without noise}
+	\label{table:nonoise}
+\end{center}
+\end{table}
+
+\begin{table}[h]
+\begin{center}
+	\begin{tabular}{ |c|c|c|c| }
+		\hline
+		Map & \multicolumn{1}{|p{3cm}|}{\centering Avg. completition time(s) } &\multicolumn{1}{|p{3cm}|}{\centering Avg. distance from target(cm) }  & collision(\%)  \\ 
+		\hline
+		\hline
+		1 & 2.81 & 0.25  & 0 \\  
+		2 & 3.63 & 0.35  & 0 \\ 
+		3 & 10.08 & 5.17  & 0 \\ 
+		\hline 
+	\end{tabular}
+	\label{table:noise}
+	\caption{Results with noise on sensor(1), motion(0.001),turning(0.0005)}
+\end{center}
+\end{table}
+
+Table 1 and 2 show the results obtained after running the simulation 20 times each, with and without noise. As seen, the average competition time is improved in the second table adding noise, which helps the robot to reduce the time and distance from the target. 
+
+In order to avoid collisions an important feature to set is the distance to recreate the map, these tests where conducted with a distance of 10 cm, other tests where conducted with a distance less than 5 having a collision percentage lower than 2\%. Later in the discussion section we will talk about the variable setting differences between the simulation and the real robot. 
+
+\FloatBarrier
