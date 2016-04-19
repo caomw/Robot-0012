@@ -101,7 +101,7 @@ classdef RealRobot < handle
             scan=scan0(:,[1 end]);
         end
         
-<<<<<<< HEAD
+
         function scan=ultraScan2(obj)
             % get ultrascan (angles, distances)
             % don't move back
@@ -133,8 +133,6 @@ classdef RealRobot < handle
             scan=scan0(:,[1 end]);
         end
         
-=======
->>>>>>> eaede6fc837dd694d2b8526f65c5fbd89cf2033b
         function sendMotorCommand(obj,theta,wait)
             % send commands to motors
             

@@ -19,7 +19,7 @@ function [ output_args ] = runReal( adminKey )
 
     %The final marking code will be different to this example, but if your
     %function works in this example it will work in the final marking code.
-
+    addpath('../utils');
     %%setup
     %clf;        %clears figures
     %clc;        %clears console

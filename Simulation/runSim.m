@@ -19,7 +19,7 @@ function [ output_args ] = runSim( adminKey )
 
     %The final marking code will be different to this example, but if your
     %function works in this example it will work in the final marking code.
-
+    addpath('../utils');
     %%setup
     %clf;        %clears figures
     %clc;        %clears console
@@ -35,7 +35,7 @@ function [ output_args ] = runSim( adminKey )
 
     %Different noise levels to be tested
     noiseLevel(:,1) = [0,0,0]; %no noise
-    noiseLevel(:,2) = [2,1,0.1]; %all the noise
+    noiseLevel(:,2) = [2,0.01,0.0001]; %all the noise
 
     %The number of time the function is run so that the average performance can
     %be calculated. This will be much larger during real marking.
@@ -86,7 +86,7 @@ function [ output_args ] = runSim( adminKey )
                     %% stuff
                     
                     %localization
-                    returnedBot = localiseALL(botSim,maps{i},target);
+                    returnedBot = localise(botSim,maps{i},target);
                     
                     
                     
