@@ -10,7 +10,7 @@ In this section, we provide detailed implementation of particle filters localisa
   \KwOut{estimate, isConverge}  
   updateParticles(particles, robot); \\
   estimate = getEstimation(particles); \\
-  \If{isConverge = true \label{alg:condition}}{
+  \uIf{isConverge = true \label{alg:condition}}{
   \If{estimate is too different from real robot}{initialise particles; \\ isConverge = false;}
   }
   \Else{
@@ -60,16 +60,17 @@ By running this algorithm to localise the robot in the simulation, we obtained p
 
 \begin{figure}[h]
 \centering
-  \begin{subfigure}{0.48\textwidth}
-  \includegraphics[scale=0.5]{experiment}
-  \caption{}
-  \label{fig:experiment}
-  \end{subfigure}
+%  \begin{subfigure}{0.48\textwidth}
+%  \includegraphics[scale=0.5]{experiment}
+%  \caption{}
+%  \label{fig:experiment}
+%  \end{subfigure}
   \begin{subfigure}{0.48\textwidth}
   \includegraphics[scale=0.5]{sizedetermine}
   \caption{}
   \label{fig:sizedeter}
   \end{subfigure}
+  ~
   \begin{subfigure}{0.48\textwidth}
   \includegraphics[scale=0.5]{scorecompute}
   \caption{}

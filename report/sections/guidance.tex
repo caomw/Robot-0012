@@ -11,13 +11,13 @@
 	
 		The robot's highest priority objective is avoiding collisions with the walls. This is done by a simple algorithm, which estimates the smallest distance between the robot and the scanned points based on the commanded movement. If this predicted distance is smaller than a certain threshold, it 'bounces back' from the boundary (see Figure \ref{fig:ca}). The reflected angle is perturbed with a small noise factor, so the robot does not get stuck in an area (e.g. when it goes perpendicular to the wall).
 		
-		\begin{figure}[h]
-		   \centering
-			\includegraphics[width=.75\textwidth]{ca1}
-		    
-		   \caption{'Wall bouncing', with a distance threshold of 10cm (inner boundary).}
-		   \label{fig:ca}
-	 	\end{figure}
+%		\begin{figure}[h]
+%		   \centering
+%			\includegraphics[width=.75\textwidth]{ca1}
+%		    
+%		   \caption{'Wall bouncing', with a distance threshold of 10cm (inner boundary).}
+%		   \label{fig:ca}
+%	 	\end{figure}
 	
 	\subsubsection{Exploration}
 	
@@ -28,19 +28,17 @@
 		\begin{figure}[h]
 		    \centering
 		    \begin{subfigure}[b]{0.48\textwidth}
-   	 			\includegraphics[width=\textwidth]{apf1}
+   	 			\includegraphics[width=1.1\textwidth]{apf1}
    	 			\caption{}
 				\label{fig:apf1}
    	 		\end{subfigure}		    
 		    ~
 		    \begin{subfigure}[b]{0.48\textwidth}
-   	 			\includegraphics[width=\textwidth]{apf2}
+   	 			\includegraphics[width=1.1\textwidth]{apf2}
    	 			\caption{}
  				\label{fig:apf2}
    	 		\end{subfigure}
-   	 		%		    \subfloat[][]{\includegraphics[width=.5\textwidth]{apf1}\label{fig:apf1}}
-%		    \subfloat[][]{\includegraphics[width=.5\textwidth]{apf2}\label{fig:apf2}}
-		     
+   	
 		    \caption{Simulation with artificial potential field as guidance ($\epsilon=0.3$). (\protect\subref{fig:apf1}) Initial path. (\protect\subref{fig:apf2}) Path after some time.}
 		    \label{fig:apf}
 	 	\end{figure}
@@ -59,10 +57,21 @@
 		
 		\begin{figure}[h]
 			\centering
-			\includegraphics[width=.75\textwidth]{apf3}
+			\begin{subfigure}[b]{0.48\textwidth}
+				\includegraphics[width=1.1\textwidth]{ca1}
+   	 			\caption{}
+				\label{fig:ca}
+   	 		\end{subfigure}		    
+			~
+			\begin{subfigure}[b]{0.48\textwidth}
+			\includegraphics[width=1.1\textwidth]{apf3}
+   	 			\caption{}
+ 				\label{fig:apf3}
+   	 		\end{subfigure}
 			
-			\caption{Combined exploration (artificial potential field with $\epsilon=0.2$ and collision avoidance), the former explores the space, a latter makes sure that the robot does not collide with the wall in any circumstances.}
-			\label{fig:apf3}
+			
+			\caption{(\protect\subref{fig:ca}) 'Wall bouncing', with a distance threshold of 10cm (inner boundary). (\protect\subref{fig:apf3}) Combined exploration (artificial potential field with $\epsilon=0.2$ and collision avoidance), the former explores the space, a latter makes sure that the robot does not collide with the wall in any circumstances.}
+			\label{fig:comb}
 	 	\end{figure}
 	 	
 	\subsubsection{Path planning} 	
@@ -71,7 +80,7 @@
 		
 		\begin{figure}[h]
 		    \centering
-  	 		\includegraphics[width=.75\textwidth]{vm1}
+  	 		\includegraphics[width=.6\textwidth]{vm1}
 		    \caption{A* search on the visibility graph finds the shortest path (blue line) between the robot and the target (blue and red cross respectively). The modified map is used, so the robot does not go closer to the walls than 10cm.}
 		    \label{fig:vm1}
 	 	\end{figure}

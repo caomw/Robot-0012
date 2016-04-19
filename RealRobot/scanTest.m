@@ -4,7 +4,7 @@ clear knownPoints1 knownPoints2
 data=csvread(['scanresult_' num2str(i) '.txt']);
 %scan=data;
 data(:,1)=deg2rad(data(:,1));
-scan=condData2(data);   
+scan=condData(data(:,1),data(:,2));   
 
 unitV=[0;1];
 %% stuff

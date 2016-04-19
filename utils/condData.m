@@ -1,8 +1,8 @@
-function scan=condData(data,plotE)
+function scan=condData(angles,dist,plotE)
 
     %data=csvread(['scanresult_' num2str(plotE) '.txt']);
-    angles=data(:,1);
-    dist=data(:,2);
+    %angles=data(:,1);
+    %dist=data(:,2);
 
     angles=angles(dist~=255);
     dist=dist(dist~=255);
@@ -27,7 +27,7 @@ function scan=condData(data,plotE)
     jPoints=[1;find(abs(dscan(:,2))>distThreshold);size(scanRaw,1)];
     padding=1;
     numThreshold=5;
-    angleThreshold=15;
+    angleThreshold=deg2rad(15);
     n=1;
     
     for i=1:length(jPoints)-1
@@ -55,12 +55,12 @@ function scan=condData(data,plotE)
     scanSteps=round(size(scanRaw,1)/sensorRays);
     scanSteps=1;
     scan=scan(1:scanSteps:end,:);
-    scan(:,1)=deg2rad(scan(:,1));
+    %scan(:,1)=deg2rad(scan(:,1));
 
     %scan(:,2)
     %fitted=fitting2(scan(:,2));
 
-    if nargin>1
+    if nargin>2
         %dlmwrite(['scanresult_' num2str(num) '.txt'],scanRaw)
         figure(plotE)
         plot(deg2rad(scanRaw(:,1)),scanRaw(:,2),'.')

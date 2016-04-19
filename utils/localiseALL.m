@@ -1,7 +1,7 @@
 function [botSim] = localiseALL(botSim,map,target)
 %This function returns botSim, and accepts, botSim, a map and a target.
 %LOCALISE Template localisation function
-    REAL=true;
+    REAL=false;
     drawParticles=false;
     %% setup code
     %you can modify the map to take account of your robots configuration space
@@ -16,7 +16,7 @@ function [botSim] = localiseALL(botSim,map,target)
     %% Scan configuration: 180 degrees vision
     startAngle =-pi/2;
     endAngle = pi/2;
-    samples = 10; % number of beams
+    samples = 8; % number of beams
     scanLines= startAngle:abs(endAngle-startAngle)/samples:endAngle;%-abs(startAngle-endAngle)/samples
     scanConfig =  cat(1,cos(scanLines), sin(scanLines))'*30;
     botSim.setScanConfig(scanConfig);           
@@ -55,10 +55,10 @@ function [botSim] = localiseALL(botSim,map,target)
     exploreSteps=2;
     steps=0;
 
-    knownPoints=NaN([2 2000],'double');
-    beenThere=knownPoints;
+    knownPoints=NaN([2 15*samples],'double');
+    beenThere=NaN([2 15],'double');
     knownPoints2=knownPoints;
-    beenThere2=knownPoints;
+    beenThere2=beenThere;
     unitV=[0;1];
     direction=0;
     robotCommand=zeros(1,2);
