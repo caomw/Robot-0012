@@ -118,7 +118,7 @@ classdef RealRobot < handle
             obj.turnSensor(a_lim,0); 
             angle=obj.getSensAngle();
             c=0;
-            while abs(a_lim-angle)>1
+            while abs(a_lim-angle)>3
                 c=c+1;
                 angle=obj.getSensAngle();
                 dist(c) = GetUltrasonic(SENSOR_1);
@@ -296,7 +296,7 @@ classdef RealRobot < handle
                 end
             end
             if isempty(points)
-                points{1}=[Nan Nan];
+                points{1}=[NaN NaN];
             end
             
             scan=[];

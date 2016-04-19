@@ -19,7 +19,8 @@ function [ output_args ] = runSim( adminKey )
 
     %The final marking code will be different to this example, but if your
     %function works in this example it will work in the final marking code.
-    addpath('../utils');
+    addpath('./utils');
+    addpath('./BotSimLib0.36');
     %%setup
     %clf;        %clears figures
     %clc;        %clears console
@@ -42,7 +43,7 @@ function [ output_args ] = runSim( adminKey )
     %if the value is 1 it will run from predefined start and target positions
     %If the number is greater than 1, the first test will be from predefined
     %positions, and the rest will be randomised.
-    numberOfrepeats = 1;
+    numberOfrepeats = 10;
 
     %Predefined start and target positions
     startPositions =  [20,20;30,20;50,70 ]; %These will change
@@ -61,8 +62,8 @@ function [ output_args ] = runSim( adminKey )
         disp('marking...')
 
         %% marking
-        for i = 1:size(maps,1)
-            for j=1:size(noiseLevel,2)
+        for i = 3:size(maps,1)
+            for j=2:size(noiseLevel,2)
                 fprintf('map %0.f\t noiseLevels %0.f \n',i,j);
                 for k = 1:numberOfrepeats
                     clf;        %clears figures

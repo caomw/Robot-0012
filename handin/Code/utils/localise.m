@@ -2,6 +2,7 @@ function [botSim] = localise(botSim,map,target)
 %This function returns botSim, and accepts, botSim, a map and a target.
 
     try
+        %throw('No robot');
         botReal=RealRobot();
         REAL=true;
         display('Real robot');
@@ -16,7 +17,7 @@ function [botSim] = localise(botSim,map,target)
     if REAL
         wallDistlim=15;
     else
-        wallDistlim=7;
+        wallDistlim=10;
     end
     modifiedMap = MapBorder2(map, wallDistlim); 
     botSim.setMap(map);
@@ -88,6 +89,7 @@ function [botSim] = localise(botSim,map,target)
         
         
         [nearest,nidx]=min(botScan);
+        near=botScan<wallDistlim;
         %% Write code for updating your particles scans
         %[pose, isPFLdone] = PFL( botScan, particles, isPFLdone );
         [pose, isPFLdone] = PFL2( botScan, particles, isPFLdone, botEstimate );
@@ -103,7 +105,7 @@ function [botSim] = localise(botSim,map,target)
         knownPoints = circshift(knownPoints,numel(botScan),2);
 
         %% Write code to check for convergence   
-        if n<10
+        if n<15
             isPFLdone=0;
         end
         gotoTarget=isPFLdone;
@@ -202,11 +204,14 @@ function [botSim] = localise(botSim,map,target)
         end
         nearestNext=nearest-0*move*cos(scanLines(nidx)-turn);
         
-        if nearestNext<wallDistlim*1.0
-            if abs(scanLines(nidx))<0.1
+        if ~isempty(find(near,1))
+            %nearestNext<wallDistlim*1.0
+            angle=meanangle(scanLines(near));
+            %angle=scanLines(nidx);
+            if abs(angle)<0.1
                 turn=0.9*pi;
             else
-                turn=-2*sign(scanLines(nidx))*(pi/2-abs(scanLines(nidx))+0.1)+0.05*(rand(1)-0.5)*abs(scanLines(nidx));
+                turn=-2*sign(angle)*(pi/2-abs(angle)+0.1)+0.05*(rand(1)-0.5)*abs(angle);
             end
             move=stepSize0/2;
             plan=1;

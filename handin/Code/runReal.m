@@ -1,4 +1,4 @@
-function [ output_args ] = runSim( adminKey )
+function [ output_args ] = runReal( adminKey )
 %RUNSIM Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -19,7 +19,8 @@ function [ output_args ] = runSim( adminKey )
 
     %The final marking code will be different to this example, but if your
     %function works in this example it will work in the final marking code.
-    addpath('../utils');
+    addpath('./utils');
+    addpath('./BotSimLib0.36');
     %%setup
     %clf;        %clears figures
     %clc;        %clears console
@@ -29,26 +30,30 @@ function [ output_args ] = runSim( adminKey )
     %More maps will be used
     maps = cell(3,1); %needed for making jagged arrays
     % maps{1} = [0,0;60,0;60,45;45,45]; %Quadrilateral Map
-    maps{1} = [0,0;60,0;60,45;45,45;45,59;106,59;106,105;0,105]; %default map
-    maps{2} = 2*[0,0;60,0;60,50;100,50;70,0;110,0;150,80;30,80;30,40;0,80]; %long map
-    maps{3} = [-30,0;-30,40;30,40;30,60;5,60;45,90;85,60;60,60;60,40;120,40;120,60;95,60;135,90;175,60;150,60;150,40;210,40;210,60;185,60;225,90;265,60;240,60;240,40;300,40;300,0]; %repeated features
-
+    maps{1} = [ 0,0;
+                66,0;
+                66,44;
+                44,44;
+                44,66;
+                110,66;
+                110,110;
+                0,110]; %default map
     %Different noise levels to be tested
     noiseLevel(:,1) = [0,0,0]; %no noise
-    noiseLevel(:,2) = [2,0.01,0.0001]; %all the noise
 
     %The number of time the function is run so that the average performance can
     %be calculated. This will be much larger during real marking.
     %if the value is 1 it will run from predefined start and target positions
     %If the number is greater than 1, the first test will be from predefined
     %positions, and the rest will be randomised.
-    numberOfrepeats = 1;
+    numberOfrepeats = 2;
 
     %Predefined start and target positions
-    startPositions =  [20,20;30,20;50,70 ]; %These will change
-    targetPositions = [80,80;200,40;230,70]; %These will change
+    %startPositions =  [4*22,4*22;20,20];
+    targetPositions = [20,20; 4*22,4*22; 4*22,4*22; 20,20];
+    startPositions = [4*22,4*22;targetPositions(1:end-1,:)];
 
-    %adminKey =1;% rand(1); %During marking another key will be used ;)
+    %adminKey =0;% rand(1); %During marking another key will be used ;)
 
     resultsTime = zeros(size(maps,1),size(noiseLevel,3),numberOfrepeats);
     resultsDis = resultsTime;
@@ -61,29 +66,28 @@ function [ output_args ] = runSim( adminKey )
         disp('marking...')
 
         %% marking
-        for i = 1:size(maps,1)
-            for j=1:size(noiseLevel,2)
-                fprintf('map %0.f\t noiseLevels %0.f \n',i,j);
-                for k = 1:numberOfrepeats
+        for i = 1:1%size(maps,1)
+                for k = 1:length(targetPositions);
                     clf;        %clears figures
-                    botSim = BotSim(maps{i},noiseLevel(:,j),adminKey);  %sets up botSim object with adminKey
+                    botSim = BotSim(maps{i},noiseLevel(:,1),adminKey);  %sets up botSim object with adminKey
 
-                    if k ==1 %runs from preset start and target positions first time, after that choose random positions
-                        botSim.setBotPos(startPositions(i,:),adminKey)
-                        target = targetPositions(i,:);
-                    else
-                        botSim.randomPose(10); %puts the robot in a random position at least 10cm away from a wall
-                        target = botSim.getRndPtInMap(15);  %gets random target
-                    end
                     
+                    botSim.setBotPos(startPositions(k,:),adminKey)
+                    target = targetPositions(k,:);
+                    
+                    botSim.drawMap();
+                    botSim.drawBot(3);
+                    plot(target(1),target(2),'*');
+                    hold off;
+                    drawnow;
+
                     tic %starts timer
-                    
-                    %localization
                     returnedBot = localise(botSim,maps{i},target);
                     
+                    
                     %% results calculation
-                    resultsTime(i,j,k) = toc; %stops timer
-                    resultsDis(i,j,k) =  distance(target, returnedBot.getBotPos(adminKey));
+                    resultsTime(i,1,k) = toc; %stops timer
+                    resultsDis(i,1,k) =  distance(target, returnedBot.getBotPos(adminKey));
                     path = returnedBot.getBotPath(adminKey);             
                     pathLength = 0;
                     collided = 0;
@@ -102,12 +106,11 @@ function [ output_args ] = runSim( adminKey )
                     end
 
                     %% collate and print results
-                    resultsLength(i,j,k) = pathLength;
-                    resultsCollision(i,j,k) = collided;
-                    fprintf('Time: %.3f, Distance: %.3f, Length: %.3f, Collision: %.0f\n',resultsTime(i,j,k), resultsDis(i,j,k),pathLength,collided);
+                    resultsLength(i,1,k) = pathLength;
+                    resultsCollision(i,1,k) = collided;
+                    fprintf('Time: %.3f, Distance: %.3f, Length: %.3f, Collision: %.0f\n',resultsTime(i,1,k), resultsDis(i,1,k),pathLength,collided);
                 end
                 disp(' ');
-            end
         end
 
         %% Calculate average scores
@@ -122,8 +125,6 @@ function [ output_args ] = runSim( adminKey )
         ResultsTable = table(averageCompletionTime, averageDisFromTgt, averagePathLength, percentCollision,'RowNames',{'Map1';'Map2';'Map3'})
     end
     
-    output_args{1}=resultsTime;
-    output_args{2}=resultsDis;
 
 end
 
