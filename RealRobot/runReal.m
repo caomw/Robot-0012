@@ -85,7 +85,7 @@ function [ output_args ] = runReal( adminKey )
                     
                     %localization
                     %returnedBot = localiseReal3(botSim,maps{i},target);
-                    returnedBot = localiseALL(botSim,maps{i},target);
+                    returnedBot = localise(botSim,maps{i},target);
                     
                     
                     

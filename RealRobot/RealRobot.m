@@ -1,6 +1,5 @@
 classdef RealRobot < handle
-    %REALROBOT Summary of this class goes here
-    %   Detailed explanation goes here
+    %REALROBOT Class for the real robot
     
     properties
         h
@@ -31,22 +30,21 @@ classdef RealRobot < handle
             obj.motor=NXTMotor.empty(2,0);
             obj.motorPow=100;
             %left
-            obj.motor(1)= NXTMotor('A', 'Power',0,'SpeedRegulation',true,'TachoLimit',0,'ActionAtTachoLimit','Brake','SmoothStart',false);
+            obj.motor(1)= NXTMotor('A', 'Power',0,'SpeedRegulation',true,'TachoLimit',0,'ActionAtTachoLimit','Brake','SmoothStart',true);
             %right
-            obj.motor(2)= NXTMotor('B', 'Power',0,'SpeedRegulation',true,'TachoLimit',0,'ActionAtTachoLimit','Brake','SmoothStart',false);
+            obj.motor(2)= NXTMotor('B', 'Power',0,'SpeedRegulation',true,'TachoLimit',0,'ActionAtTachoLimit','Brake','SmoothStart',true);
             obj.motor(1).SendToNXT(); 
             obj.motor(2).SendToNXT();
             
             obj.mSensorPower=80;
             obj.mSensor= NXTMotor('C', 'Power', obj.mSensorPower,'SpeedRegulation',true,'TachoLimit',0,'ActionAtTachoLimit','Brake','SmoothStart',false);
             
-            obj.sensorRays=10;
+            obj.sensorRays=7;
             obj.sensRange=80;
             obj.sensC=4.5;
         end
         
         function victory(obj)
-            
             NXT_PlayTone(1000, 120);
             pause(0.5);
             NXT_PlayTone(1000, 120);
@@ -54,10 +52,13 @@ classdef RealRobot < handle
         
         
         function move(obj,dist)
+            % move to distance
             theta=obj.moveTo(dist);
             obj.sendMotorCommand(theta,1);
         end
+        
         function turn(obj,angle)
+            % turn to angle
             if abs(angle)>2*pi
                 angle=deg2rad(angle);
             end
@@ -65,21 +66,16 @@ classdef RealRobot < handle
             obj.sendMotorCommand(theta,1);
         end
         
-        function a=getSensAngle(obj)
-            
+        function a=getSensAngle(obj)    
+            % get sensor angle
             data=obj.mSensor.ReadFromNXT();
-            a=-data.Position;
-            
+            a=-data.Position;            
         end
         
         function scan=ultraScan(obj)
-            %TODO move around, and take mesaurements
+            % get ultrascan (angles, distances)
+            % move back to 0 after the scan
             
-            
-            resolution = 5;
-            %header1 = 'Measure in cm';
-            %fid=fopen('SensorMovement.txt','w');
-            %fprintf(fid, [ header1 '\n']);
             dist=-1*ones(200,1);
             angles=dist;
             direction=1;
@@ -100,16 +96,47 @@ classdef RealRobot < handle
             obj.mSensor.Stop('off');
             
             obj.turnSensor(0,1,90); 
-            %NXT_PlayTone(500, 100);
             
-            %scan0=obj.condDataR2(angles,dist);
             scan0=obj.condDataR(angles,dist);
-            
-            %scan0=obj.condDataR0(angles,dist);
             scan=scan0(:,[1 end]);
         end
         
+<<<<<<< HEAD
+        function scan=ultraScan2(obj)
+            % get ultrascan (angles, distances)
+            % don't move back
+            
+            dist=-1*ones(200,1);
+            angles=dist;
+            direction=-sign(obj.getSensAngle());
+            if direction==0
+                direction=1;
+                obj.turnSensor(-obj.sensRange,1,90);
+            end
+            
+            a_lim=obj.sensRange*direction;       
+            obj.turnSensor(a_lim,0); 
+            angle=obj.getSensAngle();
+            c=0;
+            while abs(a_lim-angle)>1
+                c=c+1;
+                angle=obj.getSensAngle();
+                dist(c) = GetUltrasonic(SENSOR_1);
+                angle=(angle+obj.getSensAngle())/2;
+                angles(c)=angle;
+            end
+            obj.mSensor.WaitFor();
+            obj.mSensor.Stop('off');
+            
+            scan0=obj.condDataR(angles,dist);
+            
+            scan=scan0(:,[1 end]);
+        end
+        
+=======
+>>>>>>> eaede6fc837dd694d2b8526f65c5fbd89cf2033b
         function sendMotorCommand(obj,theta,wait)
+            % send commands to motors
             
             for i=1:2
                 if round(abs(theta(i)))~=0
@@ -130,6 +157,7 @@ classdef RealRobot < handle
         end
         
         function turnSensor(obj,angle,wait,pow)
+            % turn the sensor to a position
             
             data=obj.mSensor.ReadFromNXT();
             angle=-angle;
@@ -151,6 +179,8 @@ classdef RealRobot < handle
         end
         
         function [ theta ] = turnTo(obj, angle )
+            % calculate motor commands for turning
+            
             Z=obj.R*[.5 .5; 1/obj.w -1/obj.w];
             x(1,1)=0;
             x(2,1)=-deg2rad(angle);
@@ -159,6 +189,8 @@ classdef RealRobot < handle
         end
         
         function [ theta ] = moveTo(obj,dist )
+            % calculate motor commands for moving
+            
             Z=obj.R*[.5 .5; 1/obj.w -1/obj.w];
             x(1,1)=dist;
             x(2,1)=0;
@@ -167,7 +199,7 @@ classdef RealRobot < handle
         end
         
         function scan=condDataR0(obj,angles,dist,p)
-            
+            % data conditioning 0 (experimental)
             
             
             angles=angles(dist<90);
@@ -210,13 +242,10 @@ classdef RealRobot < handle
         end
         
         function scanOut=condDataR(obj,angles,dist,p)
+            % data conditioning (final)
             
-            
-            closeThreshold=30;
             angles=angles(dist<80);
-            %anglesClose=angles(dist<closeThreshold);
             dist=dist(dist<80);
-            %distClose=dist(dist<closeThreshold);
             %{
             angles=angles(dist<80);
             p =[0.000000060758403  -0.000012216779499  -0.000142367747446   1.102508214926583  -1.035450741947817];
@@ -282,13 +311,8 @@ classdef RealRobot < handle
                 scan=[scan;points{i}];
             end
 
-
-
-            %obj.sensorRays=20;
             scanSteps=round(size(scanRaw,1)/obj.sensorRays);
-            %scanSteps=1;
             scan=scan(1:scanSteps:end,:);
-            %scan(:,1)=deg2rad(scan(:,1));
 
             
             offset=0;
@@ -296,17 +320,18 @@ classdef RealRobot < handle
             a=scan(:,3)+offset;
             b=obj.sensC;
             c=sqrt(a.^2+b^2-2*a.*b.*cos(pi-abs(gamma)));
-            %sqrt((scan(:,3)+2).^2+obj.sensC^2-2*scan(:,3)*obj.sensC.*cos(pi-abs(scan(:,1))));
             alpha=acos((a.^2-b.^2-c.^2)./(-2*c*b));
             
             
             scan(:,3)=c;
             scan(:,1)=alpha.*sign(gamma);
-            scanOut=[scanRaw(1,:);scan(:,[1 3]);scanRaw(end,:)];%;deg2rad(anglesClose) distClose];
+            sides=6;
+            scanOut=[scanRaw(1:sides/2:sides,:);scan(:,[1 3]);scanRaw(end-sides:sides/2:end,:)];
 
         end
         
         function scan=condDataR2(obj,angles,dist,p)
+            % data conditioning 2 (experimental)
             
             angles=angles(dist~=255);
             dist=dist(dist~=255);
@@ -372,13 +397,13 @@ classdef RealRobot < handle
                 idx=find(pointsTemp{i}(:,2)==m);
 
                 if length(idx)<=thresholdN
-                    pointsTemp{i}(idx,2)=NaN;%NaN(length(idx),2)
+                    pointsTemp{i}(idx,2)=NaN;
                     %i=i-1;
                     if isempty(idx)
                         i=i+1;
                     end
                 else
-                    if idx(1)~=1 && idx(end)~=length(pointsTemp{i}(:,2))% && length(idx)>thresholdN
+                    if idx(1)~=1 && idx(end)~=length(pointsTemp{i}(:,2))
                         d=m;
                         alpha=meanangle(pointsTemp{i}(idx,1));
                         betas=(pointsTemp{i}(:,1));
@@ -391,40 +416,13 @@ classdef RealRobot < handle
                     end
                     i=i+1;
                 end
-                %i
             end
 
-
-
-            %obj.sensorRays=20;
             scanSteps=round(size(scanRaw,1)/obj.sensorRays);
             scanSteps=1;
             scan=scan(1:scanSteps:end,:);
-            %scan(:,1)=deg2rad(scan(:,1));
-
-            %scan(:,2)
-            %fitted=fitting2(scan(:,2));
-
-            if nargin>3
-                %dlmwrite(['scanresult_' num2str(num) '.txt'],scanRaw)
-                figure
-                plot(deg2rad(scanRaw(:,1)),scanRaw(:,2),'.')
-                hold on
-                plot(scan(:,1),scan(:,3),'.')
-                %plot(scan(:,1),fitted(:),'x')
-                %plot(dscan(:,1),dscan(:,2),'.')
-                for i=1:length(jPoints)
-                    %scanRaw(jPoints(i),1)
-                    plot(deg2rad([scanRaw(jPoints(i),1) scanRaw(jPoints(i),1)]),[-10 100],'k--')
-                end
-                hold off
-                grid on
-                axis([-pi/2 pi/2 -10 100]);
-            end
             
-            %scan
             scan(:,3)=sqrt((scan(:,3)+2).^2+obj.sensC^2-2*scan(:,3)*obj.sensC.*cos(pi-scan(:,1)));
-
         end
         
         
