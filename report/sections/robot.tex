@@ -20,7 +20,26 @@ The total height of the robot is approximately 18 cm. The width and length are 1
   \caption{Back appearance} \label{fig:backrobot}
   \end{subfigure}
   \caption{Robot configuration.}
-  \label{fig:robotconfig}
+  \label{fig:sensorerrors}
 \end{figure}
 
+\subsection{Sensors}
+
+Our robot only uses the ultrasonic sensor to measure its environment. In figure \ref{fig:sensorerrors}, the sensor error can be seen, the red dots demonstrate how the corners can't be measure correctly. Walls are not measure in a straight light and are slightly curve in the robot's world.
+
+In order to increase the accuracy of the robot while scanning and not affect the navigation and guidance steps, these high errors(i.e red dots in figure \ref{fig:sensorerrors}) were avoided and not taken into account. If the measurement jumps more than 2 cm then that points are not used.
+
+\begin{figure}[h]
+\centering
+	\begin{subfigure}{0.5\textwidth}
+		\includegraphics[scale=0.50]{noCorners1}
+		\caption{Robot standing perpendicular to a corner}
+	\end{subfigure}
+	\begin{subfigure}{0.4\textwidth}
+		\includegraphics[scale=0.50]{noCorners2}
+		\caption{Robot standing in front of a wall and one on each side}
+	\end{subfigure}
+	\caption{Sensor error.}
+	\label{fig:sensorerrors}
+\end{figure}
 \FloatBarrier
