@@ -48,8 +48,8 @@ function [ output_args ] = runReal( adminKey )
     numberOfrepeats = 2;
 
     %Predefined start and target positions
-    startPositions =  [4*22,4*22;20,20];
-    targetPositions = [20,20;4*22,4*22];
+    startPositions =  [4*22,4*22;22,22];
+    targetPositions = [22,22;4*22,4*22];
 
     %adminKey =0;% rand(1); %During marking another key will be used ;)
 
@@ -115,6 +115,7 @@ function [ output_args ] = runReal( adminKey )
                     resultsLength(i,1,k) = pathLength;
                     resultsCollision(i,1,k) = collided;
                     fprintf('Time: %.3f, Distance: %.3f, Length: %.3f, Collision: %.0f\n',resultsTime(i,1,k), resultsDis(i,1,k),pathLength,collided);
+                    input('Ready?');
                 end
                 disp(' ');
         end

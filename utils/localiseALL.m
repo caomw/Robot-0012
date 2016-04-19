@@ -71,7 +71,7 @@ function [botSim] = localiseALL(botSim,map,target)
         scan=[];
         if REAL
             while isempty(scan)
-                scan = botReal.ultraScan();
+                scan = botReal.ultraScan2();
                 %display('Scan again');
             end
             scanLines=scan(:,1)';
@@ -281,6 +281,7 @@ function [botSim] = localiseALL(botSim,map,target)
         %toc
     end
     if REAL
+        botReal.turnSensor(0)
         botReal.victory();
     end
 end

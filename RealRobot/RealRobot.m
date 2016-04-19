@@ -109,6 +109,47 @@ classdef RealRobot < handle
             scan=scan0(:,[1 end]);
         end
         
+        function scan=ultraScan2(obj)
+            %TODO move around, and take mesaurements
+            
+            
+            resolution = 5;
+            %header1 = 'Measure in cm';
+            %fid=fopen('SensorMovement.txt','w');
+            %fprintf(fid, [ header1 '\n']);
+            dist=-1*ones(200,1);
+            angles=dist;
+            direction=-sign(obj.getSensAngle());
+            if direction==0
+                direction=1;
+                obj.turnSensor(-obj.sensRange,1,90);
+            end
+            
+            a_lim=obj.sensRange*direction;
+            %obj.turnSensor(-a_lim,1,90);            
+            obj.turnSensor(a_lim,0); 
+            angle=obj.getSensAngle();
+            c=0;
+            while abs(a_lim-angle)>1
+                c=c+1;
+                angle=obj.getSensAngle();
+                dist(c) = GetUltrasonic(SENSOR_1);
+                angle=(angle+obj.getSensAngle())/2;
+                angles(c)=angle;
+            end
+            obj.mSensor.WaitFor();
+            obj.mSensor.Stop('off');
+            
+            %obj.turnSensor(0,1,90); 
+            %NXT_PlayTone(500, 100);
+            
+            %scan0=obj.condDataR2(angles,dist);
+            scan0=obj.condDataR(angles,dist);
+            
+            %scan0=obj.condDataR0(angles,dist);
+            scan=scan0(:,[1 end]);
+        end
+        
         function sendMotorCommand(obj,theta,wait)
             
             for i=1:2
