@@ -19,8 +19,8 @@ function [ output_args ] = runSim( adminKey )
 
     %The final marking code will be different to this example, but if your
     %function works in this example it will work in the final marking code.
-    addpath('./utils');
-    addpath('./BotSimLib0.36');
+    %addpath('./utils');
+    %addpath('./BotSimLib0.36');
     %%setup
     %clf;        %clears figures
     %clc;        %clears console
